@@ -1,0 +1,9 @@
+-r requirement.txt
+coverage
+flake8
+flake8-pep257
+jedi
+nose
+nose-watcher
+rednose
+sure
