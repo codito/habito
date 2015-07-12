@@ -23,7 +23,7 @@ Here's how a command line session looks like:
     $ habito list
 
 # Screenshot
-[Habito screenshot](http://i.imgur.com/w6K57Bl.jpg)
+![Habito screenshot](http://i.imgur.com/w6K57Bl.jpg)
 
 # Roadmap
 Some of the stuff on top of my mind:
