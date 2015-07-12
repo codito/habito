@@ -3,11 +3,12 @@
 
 import click
 
-from datetime import datetime
+from datetime import datetime, timedelta
+from os import path, mkdir
 from peewee import *    # noqa
 
 
-database_name = "/tmp/habito.db"
+database_name = path.join(click.get_app_dir("habito"), "habito.db")
 db = SqliteDatabase(None)
 
 
@@ -34,16 +35,12 @@ class HabitModel(BaseModel):
     """
 
     name = CharField()
-    created_date = DateField()
+    created_date = DateField(default=datetime.now())
     frequency = IntegerField(default=1)
     quantum = DoubleField()
     units = CharField()
     magica = TextField()
     active = BooleanField(default=True)
-
-    def __str__(self):
-        """String representation for a habit."""
-        return "{0}\t{1}".format(self.frequency, self.name)
 
 
 class ActivityModel(BaseModel):
@@ -59,15 +56,14 @@ class ActivityModel(BaseModel):
     for_habit = ForeignKeyField(HabitModel, related_name="activities",
                                 index=True)
     quantum = FloatField()
-    update_date = DateTimeField()
-
-    class Meta:
-        database = db
+    update_date = DateTimeField(default=datetime.now())
 
 
 @click.group()
 def cli():
     """Habito - a simple command line habit tracker."""
+    if not path.exists(click.get_app_dir("habito")):
+        mkdir(click.get_app_dir("habito"))
     db.init(database_name)
     db.connect()
     db.create_tables([HabitModel, ActivityModel], safe=True)
@@ -76,8 +72,45 @@ def cli():
 @cli.command()
 def list():
     """List all tracked habits."""
+    from terminaltables import SingleTable
+    from textwrap import wrap
+
+    table_title = ["Habit", "Goal"]
+    for d in range(0, 10):
+        date_mod = datetime.today() - timedelta(days=d)
+        table_title.append("{0}/{1}".format(date_mod.month, date_mod.day))
+
+    table_rows = [table_title]
     for habit in HabitModel.select():
-        click.echo(habit)
+        habit_row = [habit.name, str(habit.quantum)]
+        for d in range(0, 10):
+            quanta = 0.0
+            column_text = u'\u2717'
+            date_mod = datetime.today() - timedelta(days=d)
+            activities_on_date = ActivityModel.select()\
+                .where((ActivityModel.for_habit == habit) &
+                       (ActivityModel.update_date.year == date_mod.year) &
+                       (ActivityModel.update_date.month == date_mod.month) &
+                       (ActivityModel.update_date.day == date_mod.day))
+
+            for a in activities_on_date:
+                quanta += a.quantum
+
+            if quanta >= habit.quantum:
+                column_text = u'\u2713'
+
+            habit_row.append("{0} ({1})".format(column_text, quanta))
+
+        table_rows.append(habit_row)
+
+    table = SingleTable(table_rows)
+
+    max_col_width = table.column_max_width(0)
+
+    for r in table_rows:
+        r[0] = '\n'.join(wrap(r[0], max_col_width))
+
+    click.echo(table.table)
 
 
 @cli.command()
@@ -123,11 +156,10 @@ def checkin(name, quantum):
         return
 
     habit = habits[0]
-    print(ActivityModel._meta.database.database)
     activity = ActivityModel.create(for_habit=habit,
                                     quantum=quantum,
                                     update_date=datetime.now())
-    click.echo("Added", nl=False)
+    click.echo("Added ", nl=False)
     click.secho("{0} {1}".format(activity.quantum, habit.units),
                 nl=False, fg='green')
     click.echo(" to habit")

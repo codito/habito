@@ -1,2 +1,4 @@
 click
+colorama
 peewee
+terminaltables

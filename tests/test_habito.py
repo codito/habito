@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Tests for HabitModelo module."""
+"""Tests for Habito module."""
 
-from datetime import date
+from datetime import datetime, date
 from unittest import TestCase
 from click.testing import CliRunner
 from sure import expect
@@ -9,7 +9,7 @@ from sure import expect
 from habito import habito
 
 
-class HabitModeloTests(TestCase):
+class HabitoTests(TestCase):
 
     """Test scenarios for HabitModel commands."""
 
@@ -45,10 +45,12 @@ class HabitModeloTests(TestCase):
 
     def test_habito_list_lists_tracked_habits(self):
         habit = self._create_habit_one()
+        self._run_command(habito.checkin, ["HabitModel", "-q 9.1"])
 
         result = self._run_command(habito.list)
 
-        expect(result.output).to.equal(str(habit) + "\n")
+        expect(result.output).to.contain(habit.name)
+        expect(result.output).to.contain(u"\u2717 9.1")
 
     def test_habito_list_returns_zero_exit_code(self):
         result = self._run_command(habito.list)
@@ -144,7 +146,7 @@ class HabitModeloTests(TestCase):
         return habit
 
     def _create_habit_one(self):
-        dummy_date = date(1201, 10, 12)
+        dummy_date = datetime.now()
         habit = self._create_habit(name="HabitModel One",
                                    created_date=dummy_date,
                                    quantum=0,
