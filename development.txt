@@ -3,7 +3,10 @@ coverage
 flake8
 flake8-pep257
 jedi
+mock==1.0.1
 nose
 nose-watcher
 rednose
 sure
+twine
+wheel
