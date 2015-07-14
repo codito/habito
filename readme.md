@@ -1,4 +1,7 @@
+# Habito `1.0a1`
 Simple commandline habits tracker.
+
+[![Build Status](https://drone.io/github.com/codito/habito/status.png)](https://drone.io/github.com/codito/habito/latest)
 
 # Installation
 
