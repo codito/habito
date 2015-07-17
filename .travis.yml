@@ -1,0 +1,15 @@
+language: python
+
+python:
+  - "3.4"
+
+before_install:
+  - "pip install codecov"
+
+install:
+  - "pip install -r development.txt"
+  - "pip freeze"
+
+script: nosetests
+
+after_success: codecov
