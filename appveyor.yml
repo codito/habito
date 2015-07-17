@@ -1,0 +1,28 @@
+version: 1.0.{build}
+
+init:
+- ps: >-
+    Write-Host "Filesystem root:"
+
+    ls -Name "C:/"
+
+    Write-Host "Installed SDKs:"
+
+    ls -Name "C:/Program Files/Microsoft SDKs/Windows"
+
+    Write-Host "Set python path"
+
+    $env:PATH="$env:SystemDrive\Python34;$env:SystemDrive\Python34\Scripts;$env:PATH"
+
+    Write-Host "Environment path"
+
+    $env:PATH
+
+build_script:
+- cd /D %APPVEYOR_BUILD_FOLDER%
+- pip install -r development.txt
+- python setup.py build
+
+test_script:
+- cd /D %APPVEYOR_BUILD_FOLDER%
+- nosetests
