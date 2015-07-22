@@ -1,7 +1,10 @@
 # Habito `1.0a1`
 Simple commandline habits tracker.
 
-[![Build Status](https://drone.io/github.com/codito/habito/status.png)](https://drone.io/github.com/codito/habito/latest)
+[![Linux Build Status](https://img.shields.io/travis/codito/habito.svg)](https://travis-ci.org/codito/habito)
+[![Windows Build status](https://img.shields.io/appveyor/ci/codito/habito.svg)](https://ci.appveyor.com/project/codito/habito)
+[![codecov coverage](https://img.shields.io/codecov/c/github/codito/habito.svg)](http://codecov.io/github/codito/habito?branch=master)
+
 
 # Installation
 
