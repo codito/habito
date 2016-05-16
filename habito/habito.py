@@ -109,8 +109,11 @@ def list():
     max_col_width = max_col_width if max_col_width > 0 else 20
 
     for r in table_rows:
-        r[0] = '\n'.join(wrap(r[0], max_col_width))
-
+        try:
+            r[0] = '\n'.join(wrap(r[0], max_col_width))
+        except ValueError:
+            click.echo("Please make your terminal window wider and try again")
+            raise SystemExit(1)
     click.echo(table.table)
 
 
