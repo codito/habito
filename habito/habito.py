@@ -76,7 +76,7 @@ def list():
     from textwrap import wrap
 
     nr_of_dates = TERMINAL_WIDTH//10 - 2
-    if not nr_of_dates:
+    if nr_of_dates < 1:
         click.echo("Your terminal window is too small. Please make it wider and try again")
         raise SystemExit(1)
 
