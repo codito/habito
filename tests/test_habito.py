@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """Tests for Habito module."""
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from unittest import TestCase
 from click.testing import CliRunner
 from sure import expect
-
 from habito import habito
 
 
@@ -42,20 +41,28 @@ class HabitoTests(TestCase):
         # See https://github.com/mitsuhiko/click/issues/344
         # result = habito.cli()
         pass
+    
+    def test_habito_list_gives_warning_if_terminal_too_small(self):
+        for terminal_width in range(0, 101, 5):
+            nr_of_dates = terminal_width//10 - 2
+            habito.TERMINAL_WIDTH = terminal_width 
+            result = self._run_command(habito.list)
+            if nr_of_dates < 1:
+                expect(result.output).to.contain("terminal window too small")
+                expect(result.exit_code).to.be(1)
+            else:
+                expect(result.exit_code).to.be(0)
+                for i in range(0, nr_of_dates + 1):
+                    date_string = (datetime.now() + timedelta(days=i)).strftime("%-m/%-d")
+                    expect(result.output).to.contain(date_string)
 
     def test_habito_list_lists_tracked_habits(self):
         habit = self._create_habit_one()
         self._run_command(habito.checkin, ["HabitModel", "-q 9.1"])
 
         result = self._run_command(habito.list)
-
         expect(result.output).to.contain(habit.name)
         expect(result.output).to.contain(u"\u2717 9.1")
-
-    def test_habito_list_returns_zero_exit_code(self):
-        result = self._run_command(habito.list)
-
-        expect(result.exit_code).to.be(0)
 
     def test_habito_add_should_add_a_habit(self):
         result = self._run_command(habito.add,
