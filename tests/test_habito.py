@@ -42,7 +42,7 @@ class HabitoTests(TestCase):
         # result = habito.cli()
         pass
     
-    def test_habito_list_gives_warning_if_terminal_too_small(self):
+    def test_habito_list_table_adapts_to_terminal_width(self):
         for terminal_width in range(0, 101, 5):
             nr_of_dates = terminal_width//10 - 2
             habito.TERMINAL_WIDTH = terminal_width 
