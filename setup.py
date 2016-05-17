@@ -13,7 +13,7 @@ with open(path.join(here, "readme.md"), encoding="utf-8") as f:
 setup(
     name="habito",
 
-    version="1.0a1",
+    version="1.0a2",
 
     description="Simple command line habits tracker",
     long_description=long_description,

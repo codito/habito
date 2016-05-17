@@ -1,4 +1,4 @@
-# Habito `1.0a1`
+# Habito `1.0a2`
 Simple commandline habits tracker.
 
 [![Linux Build Status](https://img.shields.io/travis/codito/habito.svg)](https://travis-ci.org/codito/habito)
