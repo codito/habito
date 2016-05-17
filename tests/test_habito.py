@@ -53,7 +53,7 @@ class HabitoTests(TestCase):
             else:
                 expect(result.exit_code).to.be(0)
                 for i in range(0, nr_of_dates + 1):
-                    date_string = (datetime.now() + timedelta(days=i)).strftime("%-m/%-d")
+                    date_string = "{dt.month}/{dt.day}".format(dt=(datetime.now() + timedelta(days=i)))
                     expect(result.output).to.contain(date_string)
 
     def test_habito_list_lists_tracked_habits(self):
