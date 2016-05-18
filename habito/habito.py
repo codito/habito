@@ -71,9 +71,11 @@ def cli():
 def format_streak(nr_of_days):
     if not nr_of_days:
         return u'\u2717'
+    if nr_of_days > 30:
+        return "+30 days"
     s = str(nr_of_days) + " day"
     if nr_of_days > 1:
-        s += "s" 
+        s += "s"
     return s
 
 @cli.command()
@@ -97,10 +99,11 @@ def list():
         habit_row = [habit.name, str(habit.quantum)]
         current_streak = 0
         in_streak = True
-        for d in range(0, nr_of_dates): 
+        dates_checked = 0
+        while True: 
             quanta = 0.0
             column_text = u'\u2717'
-            date_mod = datetime.today() - timedelta(days=d)
+            date_mod = datetime.today() - timedelta(days=dates_checked)
             activities_on_date = ActivityModel.select()\
                 .where((ActivityModel.for_habit == habit) &
                        (ActivityModel.update_date.year == date_mod.year) &
@@ -117,7 +120,12 @@ def list():
             else:
                 in_streak = False
 
-            habit_row.append("{0} ({1})".format(column_text, quanta))
+            dates_checked += 1
+            if dates_checked <= nr_of_dates:
+                habit_row.append("{0} ({1})".format(column_text, quanta))
+            elif not in_streak or dates_checked > 30:
+                break
+
         habit_row.insert(2, format_streak(current_streak)) 
         table_rows.append(habit_row)
 

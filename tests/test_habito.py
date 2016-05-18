@@ -46,9 +46,7 @@ class HabitoTests(TestCase):
         habito.format_streak(0).should.equal(u"\u2717")
         habito.format_streak(1).should.equal("1 day")
         habito.format_streak(2).should.equal("2 days")
-
-    def test_streak(self):
-        pass
+        habito.format_streak(40).should.equal("+30 days")
 
     def test_habito_list_table_adapts_to_terminal_width(self):
         for terminal_width in range(0, 101, 5):
@@ -60,7 +58,7 @@ class HabitoTests(TestCase):
                 expect(result.exit_code).to.be(1)
             else:
                 expect(result.exit_code).to.be(0)
-                for i in range(0, nr_of_dates):
+                for i in range(nr_of_dates):
                     date_string = "{dt.month}/{dt.day}".format(dt=(datetime.now() - timedelta(days=i)))
                     expect(date_string).to.be.within(result.output)
         habito.TERMINAL_WIDTH = 80
@@ -140,7 +138,22 @@ class HabitoTests(TestCase):
 
         expect(result.exit_code).to.be(0)
         expect(result.output.find(result_units_one)).to.not_be(-1)
+    
+    def test_regular_streak(self):
+        habit = self._create_habit_one()
+        for i in range(5):
+            d = datetime.now() - timedelta(days=i)
+            habito.ActivityModel.create(for_habit=habit, update_date=d, quantum="1")
+        result = self._run_command(habito.list)
+        expect("5 days").to.be.within(result.output)
 
+    def test_very_long_streak(self):
+        habit = self._create_habit_one()
+        for i in range(40):
+            d = datetime.now() - timedelta(days=i)
+            habito.ActivityModel.create(for_habit=habit, update_date=d, quantum="1")
+        result = self._run_command(habito.list)
+        expect("+30 days").to.be.within(result.output)
 
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)
@@ -154,17 +167,17 @@ class HabitoTests(TestCase):
         return result
 
     def _create_habit(self, name, created_date, quantum, magica):
-        habit = habito.HabitModel.create(name=name,
-                                         created_date=created_date,
-                                         quantum=quantum,
-                                         units="dummy_units",
-                                         magica=magica)
+        habit = habito.HabitModel.get_or_create(name=name,
+                                                created_date=created_date,
+                                                quantum=quantum,
+                                                units="dummy_units",
+                                                magica=magica)
         return habit
 
     def _create_habit_one(self):
         dummy_date = datetime.now()
-        habit = self._create_habit(name="HabitModel One",
+        habit, _ = self._create_habit(name="HabitModel One",
                                    created_date=dummy_date,
-                                   quantum=0,
+                                   quantum=0.1,
                                    magica="be awesome!")
         return habit
