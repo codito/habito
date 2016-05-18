@@ -10,7 +10,7 @@ from peewee import *    # noqa
 
 database_name = path.join(click.get_app_dir("habito"), "habito.db")
 db = SqliteDatabase(None)
-
+TERMINAL_WIDTH, TERMINAL_HEIGHT = click.get_terminal_size()
 
 class BaseModel(Model):
 
@@ -75,15 +75,20 @@ def list():
     from terminaltables import SingleTable
     from textwrap import wrap
 
+    nr_of_dates = TERMINAL_WIDTH//10 - 2
+    if nr_of_dates < 1:
+        click.echo("Your terminal window is too small. Please make it wider and try again")
+        raise SystemExit(1)
+
     table_title = ["Habit", "Goal"]
-    for d in range(0, 10):
+    for d in range(0, nr_of_dates): 
         date_mod = datetime.today() - timedelta(days=d)
         table_title.append("{0}/{1}".format(date_mod.month, date_mod.day))
 
     table_rows = [table_title]
     for habit in HabitModel.select():
         habit_row = [habit.name, str(habit.quantum)]
-        for d in range(0, 10):
+        for d in range(0, nr_of_dates): 
             quanta = 0.0
             column_text = u'\u2717'
             date_mod = datetime.today() - timedelta(days=d)
