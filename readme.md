@@ -35,8 +35,6 @@ Here's how a command line session looks like:
 # Roadmap
 Some of the stuff on top of my mind:
 
-* `habito list` can be better. It doesn't check if tables can be output in
-terminal screen appropriately :(
 * Show how much data is needed to get me on track to meet goals
 * Gamification!
 
