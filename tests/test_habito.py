@@ -48,21 +48,22 @@ class HabitoTests(TestCase):
             habito.TERMINAL_WIDTH = terminal_width 
             result = self._run_command(habito.list)
             if nr_of_dates < 1:
-                expect(result.output).to.contain("terminal window too small")
+                expect("terminal window is too small").to.be.within(result.output)
                 expect(result.exit_code).to.be(1)
             else:
                 expect(result.exit_code).to.be(0)
-                for i in range(0, nr_of_dates + 1):
-                    date_string = "{dt.month}/{dt.day}".format(dt=(datetime.now() + timedelta(days=i)))
-                    expect(result.output).to.contain(date_string)
+                for i in range(0, nr_of_dates):
+                    date_string = "{dt.month}/{dt.day}".format(dt=(datetime.now() - timedelta(days=i)))
+                    expect(date_string).to.be.within(result.output)
+        habito.TERMINAL_WIDTH = 80
 
     def test_habito_list_lists_tracked_habits(self):
         habit = self._create_habit_one()
-        self._run_command(habito.checkin, ["HabitModel", "-q 9.1"])
+        self._run_command(habito.checkin, ["HabitModel", "-q -9.1"])
 
         result = self._run_command(habito.list)
-        expect(result.output).to.contain(habit.name)
-        expect(result.output).to.contain(u"\u2717 9.1")
+        expect(habit.name).to.be.within(habit.name)
+        expect(u"\u2717 (-9.1)").to.be.within(result.output)
 
     def test_habito_add_should_add_a_habit(self):
         result = self._run_command(habito.add,
