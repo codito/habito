@@ -41,10 +41,18 @@ class HabitoTests(TestCase):
         # See https://github.com/mitsuhiko/click/issues/344
         # result = habito.cli()
         pass
-    
+   
+    def test_format_streak(self):
+        habito.format_streak(0).should.equal(u"\u2717")
+        habito.format_streak(1).should.equal("1 day")
+        habito.format_streak(2).should.equal("2 days")
+
+    def test_streak(self):
+        pass
+
     def test_habito_list_table_adapts_to_terminal_width(self):
         for terminal_width in range(0, 101, 5):
-            nr_of_dates = terminal_width//10 - 2
+            nr_of_dates = terminal_width//10 - 3 
             habito.TERMINAL_WIDTH = terminal_width 
             result = self._run_command(habito.list)
             if nr_of_dates < 1:

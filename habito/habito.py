@@ -68,6 +68,13 @@ def cli():
     db.connect()
     db.create_tables([HabitModel, ActivityModel], safe=True)
 
+def format_streak(nr_of_days):
+    if not nr_of_days:
+        return u'\u2717'
+    s = str(nr_of_days) + " day"
+    if nr_of_days > 1:
+        s += "s" 
+    return s
 
 @cli.command()
 def list():
@@ -75,12 +82,12 @@ def list():
     from terminaltables import SingleTable
     from textwrap import wrap
 
-    nr_of_dates = TERMINAL_WIDTH//10 - 2
+    nr_of_dates = TERMINAL_WIDTH//10 - 3 
     if nr_of_dates < 1:
         click.echo("Your terminal window is too small. Please make it wider and try again")
         raise SystemExit(1)
 
-    table_title = ["Habit", "Goal"]
+    table_title = ["Habit", "Goal", "Streak"]
     for d in range(0, nr_of_dates): 
         date_mod = datetime.today() - timedelta(days=d)
         table_title.append("{0}/{1}".format(date_mod.month, date_mod.day))
@@ -88,6 +95,8 @@ def list():
     table_rows = [table_title]
     for habit in HabitModel.select():
         habit_row = [habit.name, str(habit.quantum)]
+        current_streak = 0
+        in_streak = True
         for d in range(0, nr_of_dates): 
             quanta = 0.0
             column_text = u'\u2717'
@@ -103,9 +112,13 @@ def list():
 
             if quanta >= habit.quantum:
                 column_text = u'\u2713'
+                if in_streak:
+                    current_streak += 1
+            else:
+                in_streak = False
 
             habit_row.append("{0} ({1})".format(column_text, quanta))
-
+        habit_row.insert(2, format_streak(current_streak)) 
         table_rows.append(habit_row)
 
     table = SingleTable(table_rows)
