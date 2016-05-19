@@ -87,7 +87,7 @@ def list():
 
     table_rows = [table_title]
     for habit in HabitModel.select():
-        habit_row = [habit.name, str(habit.quantum)]
+        habit_row = [str(habit.id) + ": " + habit.name, str(habit.quantum)]
         for d in range(0, nr_of_dates): 
             quanta = 0.0
             column_text = u'\u2717'
@@ -139,6 +139,37 @@ def add(name, quantum, units):
     HabitModel.create(name=habit_name,
                       created_date=datetime.now(), quantum=quantum,
                       units=units, magica="")
+
+@cli.command()
+@click.argument("id", type=click.INT)
+@click.option('--name', '-n', help="The new name (leave empty to leave unchanged)")
+@click.option('--quantum', '-q', help="The new quantum (leave empty to leave unchanged)", type=click.FLOAT)
+def edit(id, name, quantum):
+    try:
+        habit = HabitModel.get(HabitModel.id == id)
+    except DoesNotExist:
+        click.echo("The habit you're trying to edit does not exist!")
+        raise SystemExit(1)
+    habit.name = name.strip() or habit.name
+    habit.quantum = quantum or habit.quantum
+    habit.save()
+    click.echo("Habit with id {} has been saved with name: {} and quantum: {}".format(id, habit.name, habit.quantum))
+
+
+@cli.command()
+@click.argument("id", type=click.INT)
+def delete(id):
+    try:
+        habit = HabitModel.get(HabitModel.id == id)
+    except DoesNotExist:
+        click.echo("The habit you want to remove does not seem to exist!")
+        raise SystemExit(1)
+    confirm = click.prompt("Are you sure you want to delete habit {}: {} (this cannot be undone!)".format(habit.id, habit.name))
+    if confirm:
+        click.echo("Habit {}: {} has been deleted!".format(habit.id, habit.name))
+        habit.delete_instance()
+    else:
+        click.echo("Habit {}: {} has not been deleted!".format(habit.id, habit.name))
 
 
 @cli.command()

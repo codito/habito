@@ -32,8 +32,11 @@ class HabitoTests(TestCase):
     def test_habito_cli_sets_up_default_commandset(self):
         result = habito.cli
 
-        commands = { 'list': habito.list, 'add': habito.add,
-                    'checkin': habito.checkin }
+        commands = {'list': habito.list,
+                    'add': habito.add,
+                    'checkin': habito.checkin,
+                    'edit': habito.edit,
+                    'delete': habito.delete}
 
         expect(result.commands).to.equal(commands)
 
@@ -133,7 +136,29 @@ class HabitoTests(TestCase):
         expect(result.exit_code).to.be(0)
         expect(result.output.find(result_units_one)).to.not_be(-1)
 
+    def test_edit(self):
+        habit = self._create_habit_one()
+        edit_result = self._run_command(habito.edit, [str(habit.id), "-n EditedModel"])
+        edit_result.output.should.equal("Habit with id 1 has been saved with name: EditedModel and quantum: 0.0\n")
+        list_result = self._run_command(habito.list)
+        expect("Edit").to.be.within(list_result.output)
+        expect("HabitM").to_not.be.within(list_result.output)
 
+    def test_non_existing_edit(self):
+        edit_result = self._run_command(habito.edit, [str(10), "-n test"])
+        edit_result.output.should.equal("The habit you're trying to edit does not exist!\n")
+        expect(edit_result.exit_code).to.be(1)
+
+    def test_delete(self):
+        self._create_habit_one()
+        delete_result = self._run_command_with_stdin(habito.delete, ["1"], "y")
+        expect("Are you sure you want to delete habit 1: HabitModel One (this cannot be undone!)").to.be.within(delete_result.output)
+        expect("Habit 1: HabitModel One has been deleted!").to.be.within(delete_result.output)
+        expect(habito.HabitModel.select().count()).to.equal(0)
+
+    def test_non_existing_delete(self):
+        delete_result = self._run_command(habito.delete, ["20"])
+        expect("The habit you want to remove does not seem to exist!").to.be.within(delete_result.output)
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)
 
