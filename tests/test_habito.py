@@ -151,14 +151,25 @@ class HabitoTests(TestCase):
 
     def test_delete(self):
         self._create_habit_one()
+        self._run_command(habito.checkin, ["HabitModel", "-q 3"])
+        expect(habito.ActivityModel.select().count()).to.equal(1)
         delete_result = self._run_command_with_stdin(habito.delete, ["1"], "y")
         expect("Are you sure you want to delete habit 1: HabitModel One (this cannot be undone!)").to.be.within(delete_result.output)
         expect("Habit 1: HabitModel One has been deleted!").to.be.within(delete_result.output)
+        expect(habito.HabitModel.select().count()).to.equal(0)
         expect(habito.HabitModel.select().count()).to.equal(0)
 
     def test_non_existing_delete(self):
         delete_result = self._run_command(habito.delete, ["20"])
         expect("The habit you want to remove does not seem to exist!").to.be.within(delete_result.output)
+
+    def test_delete_with_keep_logs(self):
+        self._create_habit_one()
+        self._run_command(habito.checkin, ["HabitModel", "-q 3"])
+        expect(habito.ActivityModel.select().count()).to.equal(1)
+        delete_result = self._run_command_with_stdin(habito.delete, ["1", "--keeplogs"], "y")
+        expect(habito.ActivityModel.select().count()).to.equal(1)
+
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)
 
