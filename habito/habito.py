@@ -140,11 +140,13 @@ def add(name, quantum, units):
                       created_date=datetime.now(), quantum=quantum,
                       units=units, magica="")
 
+
 def process_date(date_str):
-    human_readable_timedeltas = {"today": 0,
-                                 "yesterday": 1}
-    date_str = date_str.lower()
-    
+    update_date = datetime.strptime(date_str, "%m/%d").replace(year=datetime.now().year)
+    return (update_date
+            if update_date < datetime.now()
+            else update_date.replace(year=update_date.year -1))
+
 
 @cli.command()
 @click.argument("name", nargs=-1)
@@ -167,11 +169,12 @@ def checkin(name, date, quantum):
             click.echo(h.name)
         return
 
-    update_date = datetime.strptime(date, "%m/%d")
+    update_date = process_date(date)
+    click.echo(update_date)
     habit = habits[0]
     activity = ActivityModel.create(for_habit=habit,
                                     quantum=quantum,
-                                    update_date=datetime.now())
+                                    update_date=update_date)
     click.echo("Added ", nl=False)
     click.secho("{0} {1}".format(activity.quantum, habit.units),
                 nl=False, fg='green')

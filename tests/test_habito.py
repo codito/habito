@@ -23,17 +23,16 @@ class HabitoTests(TestCase):
         habito.database_name = ":memory:"
         habito.db.init(habito.database_name)
         habito.db.create_tables([habito.HabitModel, habito.ActivityModel],
-                                safe=True)
+                safe=True)
 
     def tearDown(self):
-        habito.db.drop_tables([habito.HabitModel, habito.ActivityModel],
-                              safe=True)
+        habito.db.drop_tables([habito.HabitModel, habito.ActivityModel], safe=True)
 
     def test_habito_cli_sets_up_default_commandset(self):
         result = habito.cli
 
         commands = { 'list': habito.list, 'add': habito.add,
-                    'checkin': habito.checkin }
+            'checkin': habito.checkin }
 
         expect(result.commands).to.equal(commands)
 
@@ -41,7 +40,7 @@ class HabitoTests(TestCase):
         # See https://github.com/mitsuhiko/click/issues/344
         # result = habito.cli()
         pass
-    
+
     def test_habito_list_table_adapts_to_terminal_width(self):
         for terminal_width in range(0, 101, 5):
             nr_of_dates = terminal_width//10 - 2
@@ -67,14 +66,14 @@ class HabitoTests(TestCase):
 
     def test_habito_add_should_add_a_habit(self):
         result = self._run_command(habito.add,
-                                   ["dummy habit", "10.01"])
+                ["dummy habit", "10.01"])
 
         expect(habito.HabitModel.select().count()).to.be(1)
         expect(habito.HabitModel.select()[0].name).to.eql("dummy habit")
 
     def test_habito_checkin_should_show_error_if_no_habit_exists(self):
         result = self._run_command(habito.checkin,
-                                   ["dummy habit", "-q 9.1"])
+                ["dummy habit", "-q 9.1"])
 
         expect(result.exit_code).to.be(0)
         expect(result.output.startswith("No tracked habits match the")).to.true
@@ -83,12 +82,12 @@ class HabitoTests(TestCase):
         dummy_date = date(1201, 10, 12)
         habit = self._create_habit_one()
         habit_two = self._create_habit(name="HabitModel Two",
-                                       created_date=dummy_date,
-                                       quantum=0,
-                                       magica="be awesome!")
+                created_date=dummy_date,
+                quantum=0,
+                magica="be awesome!")
 
         result = self._run_command(habito.checkin,
-                                   ["HabitModel", "-q 9.1"])
+                ["HabitModel", "-q 9.1"])
 
         expect(result.exit_code).to.be(0)
         expect(result.output.startswith("More than one tracked habits match the")).to.true
@@ -98,10 +97,10 @@ class HabitoTests(TestCase):
         result_units = "9.1 dummy_units"
 
         result = self._run_command(habito.checkin,
-                                   ["HabitModel", "-q 9.1"])
+                ["HabitModel", "-q 9.1"])
 
         activity_entry = habito.ActivityModel\
-            .get(habito.ActivityModel.for_habit == habit)
+                .get(habito.ActivityModel.for_habit == habit)
 
         expect(result.output.find(result_units)).to.not_be(-1)
         expect(result.output.find(habit.name)).to.not_be(-1)
@@ -116,7 +115,7 @@ class HabitoTests(TestCase):
         result = self._run_command(habito.checkin, ["HabitModel", "-q 10.0001"])
 
         activity_entry = habito.ActivityModel\
-            .select().where(habito.ActivityModel.for_habit == habit)
+                .select().where(habito.ActivityModel.for_habit == habit)
 
         expect(result.output.find(result_units_two)).to.not_be(-1)
         expect(result.output.find(habit.name)).to.not_be(-1)
@@ -132,6 +131,11 @@ class HabitoTests(TestCase):
 
         expect(result.exit_code).to.be(0)
         expect(result.output.find(result_units_one)).to.not_be(-1)
+    
+    def test_process_date(self):
+        current_year = datetime.now().year
+        expect(habito.process_date("5/17").date()).to.equal(date(current_year, 5, 17))
+        expect(habito.process_date("12/31").date()).to.equal(date(current_year-1, 12, 31))
 
 
     def _run_command(self, command, args=[]):
@@ -147,7 +151,7 @@ class HabitoTests(TestCase):
 
     def _create_habit(self, name, created_date, quantum, magica):
         habit = habito.HabitModel.create(name=name,
-                                         created_date=created_date,
+                created_date=created_date,
                                          quantum=quantum,
                                          units="dummy_units",
                                          magica=magica)
