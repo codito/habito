@@ -158,7 +158,8 @@ def edit(id, name, quantum):
 
 @cli.command()
 @click.argument("id", type=click.INT)
-def delete(id):
+@click.option("--keeplogs", is_flag=True, default=False)
+def delete(id, keeplogs):
     try:
         habit = HabitModel.get(HabitModel.id == id)
     except DoesNotExist:
@@ -167,6 +168,9 @@ def delete(id):
     confirm = click.prompt("Are you sure you want to delete habit {}: {} (this cannot be undone!)".format(habit.id, habit.name))
     if confirm:
         click.echo("Habit {}: {} has been deleted!".format(habit.id, habit.name))
+        if not keeplogs:
+            ad = ActivityModel.delete().where(ActivityModel.for_habit == habit.id)
+            ad.execute()
         habit.delete_instance()
     else:
         click.echo("Habit {}: {} has not been deleted!".format(habit.id, habit.name))
