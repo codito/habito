@@ -140,12 +140,18 @@ def add(name, quantum, units):
                       created_date=datetime.now(), quantum=quantum,
                       units=units, magica="")
 
+def process_date(date_str):
+    human_readable_timedeltas = {"today": 0,
+                                 "yesterday": 1}
+    date_str = date_str.lower()
+    
 
 @cli.command()
 @click.argument("name", nargs=-1)
+@click.option("--date", "-d", help="The date (defaults to today)", default=datetime.now().strftime("%m/%d"))
 @click.option("--quantum", "-q", help="Quanta of data for the day",
               prompt=True)
-def checkin(name, quantum):
+def checkin(name, date, quantum):
     """Commit data for a habit."""
     query = ' '.join(name)
     habits = HabitModel.select().where(HabitModel.name.regexp(query))
@@ -161,6 +167,7 @@ def checkin(name, quantum):
             click.echo(h.name)
         return
 
+    update_date = datetime.strptime(date, "%m/%d")
     habit = habits[0]
     activity = ActivityModel.create(for_habit=habit,
                                     quantum=quantum,
