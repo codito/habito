@@ -144,7 +144,9 @@ class HabitoTests(TestCase):
         for i in range(5):
             d = today - timedelta(days=i)
             date_str = "{d.month}/{d.day}".format(d=d)
-            self._run_command(habito.checkin, ["HabitModel", "-d {}".format(date_str), "-q 35.0"])
+            checkin_result = self._run_command(habito.checkin, ["HabitModel", "-d {}".format(date_str), "-q 35.0"])
+            expect(checkin_result.output).to.be.within("for date: {}".format(date_str))
+            expect(checkin_result.output).to.be.within("35.0 units")
         list_result = self._run_command(habito.list)
         expect(list_result.output.count("35")).to.equal(5)
 
