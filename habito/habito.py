@@ -180,7 +180,8 @@ def checkin(name, date, quantum):
                 nl=False, fg='green')
     click.echo(" to habit")
     click.secho(habit.name, fg='green')
-
+    click.echo("for date: ", nl=False)
+    click.secho(date, fg='green')
 
 if __name__ == "__main__":
     cli()

@@ -138,6 +138,16 @@ class HabitoTests(TestCase):
         expect(habito.process_date("12/31").date()).to.equal(date(current_year-1, 12, 31))
 
 
+    def test_custom_date_checkin(self):
+        self._create_habit_one()
+        today = datetime.now()
+        for i in range(5):
+            d = today - timedelta(days=i)
+            date_str = "{d.month}/{d.day}".format(d=d)
+            self._run_command(habito.checkin, ["HabitModel", "-d {}".format(date_str), "-q 35.0"])
+        list_result = self._run_command(habito.list)
+        expect(list_result.output.count("35")).to.equal(5)
+
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)
 
