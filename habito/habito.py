@@ -5,58 +5,11 @@ import click
 
 from datetime import datetime, timedelta
 from os import path, mkdir
-from peewee import *    # noqa
 
+import habito.model as model
 
 database_name = path.join(click.get_app_dir("habito"), "habito.db")
-db = SqliteDatabase(None)
 TERMINAL_WIDTH, TERMINAL_HEIGHT = click.get_terminal_size()
-
-class BaseModel(Model):
-
-    """Base model class for Habito."""
-
-    class Meta:
-        database = db
-
-
-class HabitModel(BaseModel):
-
-    """Represents a single habit.
-
-    Attributes:
-        name (str): Description of the habit.
-        created_date (datetime): Date on which the habit was added.
-        quantum (float): Amount for the habit.
-        frequency (int): Data input frequency in numbers of days. (Default: 1)
-        units (str): Units of the quantum.
-        magica (str): Why is this habit interesting?
-        active (bool): True if the habit is active
-    """
-
-    name = CharField()
-    created_date = DateField(default=datetime.now())
-    frequency = IntegerField(default=1)
-    quantum = DoubleField()
-    units = CharField()
-    magica = TextField()
-    active = BooleanField(default=True)
-
-
-class ActivityModel(BaseModel):
-
-    """Updates for a Habit.
-
-    Attributes:
-        for_habit (int): Id of the Habit. Foreign key.
-        update_date (date): Date time of the update.
-        quantum (float): Amount for the habit.
-    """
-
-    for_habit = ForeignKeyField(HabitModel, related_name="activities",
-                                index=True)
-    quantum = FloatField()
-    update_date = DateTimeField(default=datetime.now())
 
 
 @click.group()
@@ -64,9 +17,7 @@ def cli():
     """Habito - a simple command line habit tracker."""
     if not path.exists(click.get_app_dir("habito")):
         mkdir(click.get_app_dir("habito"))
-    db.init(database_name)
-    db.connect()
-    db.create_tables([HabitModel, ActivityModel], safe=True)
+    model.setup(database_name)
 
 
 @cli.command()
@@ -81,22 +32,22 @@ def list():
         raise SystemExit(1)
 
     table_title = ["Habit", "Goal"]
-    for d in range(0, nr_of_dates): 
+    for d in range(0, nr_of_dates):
         date_mod = datetime.today() - timedelta(days=d)
         table_title.append("{0}/{1}".format(date_mod.month, date_mod.day))
 
     table_rows = [table_title]
-    for habit in HabitModel.select():
+    for habit in model.HabitModel.select():
         habit_row = [habit.name, str(habit.quantum)]
-        for d in range(0, nr_of_dates): 
+        for d in range(0, nr_of_dates):
             quanta = 0.0
             column_text = u'\u2717'
             date_mod = datetime.today() - timedelta(days=d)
-            activities_on_date = ActivityModel.select()\
-                .where((ActivityModel.for_habit == habit) &
-                       (ActivityModel.update_date.year == date_mod.year) &
-                       (ActivityModel.update_date.month == date_mod.month) &
-                       (ActivityModel.update_date.day == date_mod.day))
+            activities_on_date = model.ActivityModel.select()\
+                .where((model.ActivityModel.for_habit == habit) &
+                       (model.ActivityModel.update_date.year == date_mod.year) &
+                       (model.ActivityModel.update_date.month == date_mod.month) &
+                       (model.ActivityModel.update_date.day == date_mod.day))
 
             for a in activities_on_date:
                 quanta += a.quantum
@@ -136,9 +87,9 @@ def add(name, quantum, units):
     click.echo(" of ")
     click.secho("{0}".format(habit_name), fg='green', nl=False)
     click.echo(" every day!")
-    HabitModel.create(name=habit_name,
-                      created_date=datetime.now(), quantum=quantum,
-                      units=units, magica="")
+    model.HabitModel.create(name=habit_name,
+                            created_date=datetime.now(), quantum=quantum,
+                            units=units, magica="")
 
 
 @cli.command()
@@ -148,7 +99,7 @@ def add(name, quantum, units):
 def checkin(name, quantum):
     """Commit data for a habit."""
     query = ' '.join(name)
-    habits = HabitModel.select().where(HabitModel.name.regexp(query))
+    habits = model.HabitModel.select().where(model.HabitModel.name.regexp(query))
     if habits.count() == 0:
         error = "No tracked habits match the query '{0}'.".format(query)
         click.secho(error, fg='red')
@@ -162,9 +113,9 @@ def checkin(name, quantum):
         return
 
     habit = habits[0]
-    activity = ActivityModel.create(for_habit=habit,
-                                    quantum=quantum,
-                                    update_date=datetime.now())
+    activity = model.ActivityModel.create(for_habit=habit,
+                                          quantum=quantum,
+                                          update_date=datetime.now())
     click.echo("Added ", nl=False)
     click.secho("{0} {1}".format(activity.quantum, habit.units),
                 nl=False, fg='green')
