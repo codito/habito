@@ -5,11 +5,12 @@ from datetime import datetime, date, timedelta
 from unittest import TestCase
 from click.testing import CliRunner
 from sure import expect
-from habito import habito, model
+
+from habito import habito, models
+from tests import HabitoTestCase
 
 
-class HabitoTests(TestCase):
-
+class HabitoTests(HabitoTestCase):
     """Test scenarios for HabitModel commands."""
 
     # Scenarios
@@ -21,12 +22,10 @@ class HabitoTests(TestCase):
     def setUp(self):
         self.runner = CliRunner()
         habito.database_name = ":memory:"
-        model.db.init(habito.database_name)
-        model.db.create_tables([model.HabitModel, model.ActivityModel],
-                                safe=True)
+        models.setup(habito.database_name)
 
     def tearDown(self):
-        model.db.drop_tables([model.HabitModel, model.ActivityModel],
+        models.db.drop_tables([models.HabitModel, models.ActivityModel],
                               safe=True)
 
     def test_habito_cli_sets_up_default_commandset(self):
@@ -58,8 +57,8 @@ class HabitoTests(TestCase):
         habito.TERMINAL_WIDTH = 80
 
     def test_habito_list_lists_tracked_habits(self):
-        habit = self._create_habit_one()
-        self._run_command(habito.checkin, ["HabitModel", "-q -9.1"])
+        habit = self.create_habit()
+        self._run_command(habito.checkin, ["Habit", "-q -9.1"])
 
         result = self._run_command(habito.list)
         expect(habit.name).to.be.within(habit.name)
@@ -69,8 +68,8 @@ class HabitoTests(TestCase):
         result = self._run_command(habito.add,
                                    ["dummy habit", "10.01"])
 
-        expect(model.HabitModel.select().count()).to.be(1)
-        expect(model.HabitModel.select()[0].name).to.eql("dummy habit")
+        expect(models.HabitModel.select().count()).to.be(1)
+        expect(models.HabitModel.select()[0].name).to.eql("dummy habit")
 
     def test_habito_checkin_should_show_error_if_no_habit_exists(self):
         result = self._run_command(habito.checkin,
@@ -81,42 +80,42 @@ class HabitoTests(TestCase):
 
     def test_habito_checkin_should_show_error_if_multiple_habits_match(self):
         dummy_date = date(1201, 10, 12)
-        habit = self._create_habit_one()
-        habit_two = self._create_habit(name="HabitModel Two",
-                                       created_date=dummy_date,
-                                       quantum=0,
-                                       magica="be awesome!")
+        habit = self.create_habit()
+        habit_two = self.create_habit(name="Habit Two",
+                                      created_date=dummy_date,
+                                      quantum=0,
+                                      magica="be awesome!")
 
         result = self._run_command(habito.checkin,
-                                   ["HabitModel", "-q 9.1"])
+                                   ["Habit", "-q 9.1"])
 
         expect(result.exit_code).to.be(0)
         expect(result.output.startswith("More than one tracked habits match the")).to.true
 
     def test_habito_checkin_should_add_data_for_a_habit(self):
-        habit = self._create_habit_one()
+        habit = self.create_habit()
         result_units = "9.1 dummy_units"
 
         result = self._run_command(habito.checkin,
-                                   ["HabitModel", "-q 9.1"])
+                                   ["Habit", "-q 9.1"])
 
-        activity_entry = model.ActivityModel\
-            .get(model.ActivityModel.for_habit == habit)
+        activity_entry = models.ActivityModel\
+            .get(models.ActivityModel.for_habit == habit)
 
         expect(result.output.find(result_units)).to.not_be(-1)
         expect(result.output.find(habit.name)).to.not_be(-1)
         expect(activity_entry.quantum).to.eql(9.1)
 
     def test_habito_checkin_can_add_multiple_data_points_on_same_day(self):
-        habit = self._create_habit_one()
+        habit = self.create_habit()
         result_units_one = "9.1 dummy_units"
         result_units_two = "10.0001 dummy_units"
 
-        self._run_command(habito.checkin, ["HabitModel", "-q 9.1"])
-        result = self._run_command(habito.checkin, ["HabitModel", "-q 10.0001"])
+        self._run_command(habito.checkin, ["Habit", "-q 9.1"])
+        result = self._run_command(habito.checkin, ["Habit", "-q 10.0001"])
 
-        activity_entry = model.ActivityModel\
-            .select().where(model.ActivityModel.for_habit == habit)
+        activity_entry = models.ActivityModel\
+            .select().where(models.ActivityModel.for_habit == habit)
 
         expect(result.output.find(result_units_two)).to.not_be(-1)
         expect(result.output.find(habit.name)).to.not_be(-1)
@@ -125,10 +124,10 @@ class HabitoTests(TestCase):
         expect(activity_entry[1].quantum).to.eql(10.0001)
 
     def test_habito_checkin_asks_user_input_if_quantum_is_not_provided(self):
-        habit = self._create_habit_one()
+        habit = self.create_habit()
         result_units_one = "9.1 dummy_units"
 
-        result = self._run_command_with_stdin(habito.checkin, ["HabitModel"], "9.1")
+        result = self._run_command_with_stdin(habito.checkin, ["Habit"], "9.1")
 
         expect(result.exit_code).to.be(0)
         expect(result.output.find(result_units_one)).to.not_be(-1)
@@ -144,19 +143,3 @@ class HabitoTests(TestCase):
         print(result.exc_info)
 
         return result
-
-    def _create_habit(self, name, created_date, quantum, magica):
-        habit = model.HabitModel.create(name=name,
-                                         created_date=created_date,
-                                         quantum=quantum,
-                                         units="dummy_units",
-                                         magica=magica)
-        return habit
-
-    def _create_habit_one(self):
-        dummy_date = datetime.now()
-        habit = self._create_habit(name="HabitModel One",
-                                   created_date=dummy_date,
-                                   quantum=0,
-                                   magica="be awesome!")
-        return habit
