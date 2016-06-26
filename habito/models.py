@@ -11,7 +11,7 @@ def setup(name):
     """Set up the database."""
     db.init(name)
     db.connect()
-    db.create_tables([HabitModel, ActivityModel], safe=True)
+    db.create_tables([HabitModel, ActivityModel, Summary], safe=True)
 
 
 def get_activities(days):
@@ -126,5 +126,30 @@ class ActivityModel(BaseModel):
 
     for_habit = ForeignKeyField(HabitModel, related_name="activities",
                                 index=True)
-    quantum = FloatField()
+    quantum = DoubleField()
     update_date = DateTimeField(default=datetime.now())
+
+
+class Summary(BaseModel):
+    """Continuous metrics for a Habit.
+
+    Attributes:
+        for_habit (int): Id of the Habit. Foreign key.
+        target (float): A target for the Habit. Computed from the quantum.
+        target_date (date): Date for the target.
+        streak (int): Current streak for a habit. Continuous activity
+        constitutes a streak.
+    """
+
+    for_habit = ForeignKeyField(HabitModel, related_name="summary",
+                                index=True)
+    target = DoubleField()
+    target_date = DateField()
+    streak = IntegerField(default=0)
+
+    def humanize(self):
+        """Humanize a streak to include days."""
+        streak = str(self.streak) + " day"
+        if self.streak != 1:
+            streak += "s"
+        return streak

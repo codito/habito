@@ -27,12 +27,12 @@ def list():
     from terminaltables import SingleTable
     from textwrap import wrap
 
-    nr_of_dates = TERMINAL_WIDTH//10 - 2
+    nr_of_dates = TERMINAL_WIDTH//10 - 3
     if nr_of_dates < 1:
         click.echo("Your terminal window is too small. Please make it wider and try again")
         raise SystemExit(1)
 
-    table_title = ["Habit", "Goal"]
+    table_title = ["Habit", "Goal", "Streak"]
     for d in range(0, nr_of_dates):
         date_mod = datetime.today() - timedelta(days=d)
         table_title.append("{0}/{1}".format(date_mod.month, date_mod.day))
@@ -50,6 +50,8 @@ def list():
                 column_text = u'\u2713'
             habit_row.append("{0} ({1})".format(column_text, quanta))
 
+        current_streak = habit.summary.get().humanize()
+        habit_row.insert(2, current_streak)
         table_rows.append(habit_row)
 
     table = SingleTable(table_rows)
@@ -75,14 +77,24 @@ def add(name, quantum, units):
         quantum (float): Quantity of progress every day.
     """
     habit_name = ' '.join(name)
+    # Create an habit entry for the newly created habit
+    habit = HabitModel.create(name=habit_name,
+                              created_date=datetime.now(),
+                              quantum=quantum,
+                              units=units,
+                              magica="")
+
+    # Add a default summary for the habit
+    models.Summary.create(for_habit=habit,
+                          target=0,
+                          target_date=datetime.now(),
+                          streak=0)
+
     click.echo("You have commited to ", nl=False)
     click.secho("{0} {1}".format(quantum, units), nl=False, fg='green')
     click.echo(" of ")
     click.secho("{0}".format(habit_name), fg='green', nl=False)
     click.echo(" every day!")
-    HabitModel.create(name=habit_name,
-                      created_date=datetime.now(), quantum=quantum,
-                      units=units, magica="")
 
 
 @cli.command()
@@ -106,9 +118,14 @@ def checkin(name, quantum):
         return
 
     habit = habits[0]
+
+    # Create an activity for this checkin
     activity = ActivityModel.create(for_habit=habit,
                                     quantum=quantum,
                                     update_date=datetime.now())
+
+    # Update streak for the habit
+    # TODO
     click.echo("Added ", nl=False)
     click.secho("{0} {1}".format(activity.quantum, habit.units),
                 nl=False, fg='green')

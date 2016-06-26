@@ -16,7 +16,7 @@ class ModelTests(HabitoTestCase):
         models.setup(":memory:")
 
     def test_setup_creates_tables(self):
-        expect(len(models.db.get_tables())).to.be(2)
+        expect(len(models.db.get_tables())).to.be(3)
 
     def test_get_activities_raises_for_invalid_days(self):
         ga = models.get_activities
@@ -76,3 +76,29 @@ class ModelTests(HabitoTestCase):
         expect(h[1][0]).to.equal(habit2)
         expect(h[0][1]).to.equal([(0, None), (1, 20.0), (2, 1.0)])
         expect(h[1][1]).to.equal([(0, None), (1, 10.0), (2, None)])
+
+
+class SummaryTests(HabitoTestCase):
+    def test_humanize_should_add_days_for_zero_streak(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=0)
+
+        streak = habit.summary.get().humanize()
+
+        expect(streak).to.equal("0 days")
+
+    def test_humanize_should_add_days_for_plural_streak(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=20)
+
+        streak = habit.summary.get().humanize()
+
+        expect(streak).to.equal("20 days")
+
+    def test_humanize_should_add_days_for_one_streak(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=1)
+
+        streak = habit.summary.get().humanize()
+
+        expect(streak).to.equal("1 day")

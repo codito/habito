@@ -3,6 +3,7 @@
 
 from datetime import datetime, date, timedelta
 from unittest import TestCase
+from unittest.mock import patch
 from click.testing import CliRunner
 from sure import expect
 
@@ -25,7 +26,7 @@ class HabitoTests(HabitoTestCase):
         models.setup(habito.database_name)
 
     def tearDown(self):
-        models.db.drop_tables([models.HabitModel, models.ActivityModel],
+        models.db.drop_tables([models.HabitModel, models.ActivityModel, models.Summary],
                               safe=True)
 
     def test_habito_cli_sets_up_default_commandset(self):
@@ -36,14 +37,25 @@ class HabitoTests(HabitoTestCase):
 
         expect(result.commands).to.equal(commands)
 
-    def test_habito_cli_sets_up_database(self):
-        # See https://github.com/mitsuhiko/click/issues/344
-        # result = habito.cli()
-        pass
-    
+    @patch("habito.habito.models.setup")
+    def test_habito_cli_sets_up_database(self, models_setup):
+        result = self._run_command(habito.cli, ["add"])
+
+        expect(models_setup.called).to.true
+
+    @patch("habito.habito.click.get_app_dir")
+    @patch("habito.habito.mkdir")
+    def test_habito_cli_sets_up_app_directory(self, mkdir_mock, click_mock):
+        with patch("habito.habito.path.exists") as path_exists:
+            path_exists.return_value = False
+            result = self._run_command(habito.cli, ["add"])
+
+            expect(click_mock.called).to.true
+            expect(mkdir_mock.called).to.true
+   
     def test_habito_list_table_adapts_to_terminal_width(self):
         for terminal_width in range(0, 101, 5):
-            nr_of_dates = terminal_width//10 - 2
+            nr_of_dates = terminal_width//10 - 3 
             habito.TERMINAL_WIDTH = terminal_width 
             result = self._run_command(habito.list)
             if nr_of_dates < 1:
@@ -51,25 +63,34 @@ class HabitoTests(HabitoTestCase):
                 expect(result.exit_code).to.be(1)
             else:
                 expect(result.exit_code).to.be(0)
-                for i in range(0, nr_of_dates):
+                for i in range(nr_of_dates):
                     date_string = "{dt.month}/{dt.day}".format(dt=(datetime.now() - timedelta(days=i)))
                     expect(date_string).to.be.within(result.output)
         habito.TERMINAL_WIDTH = 80
 
     def test_habito_list_lists_tracked_habits(self):
         habit = self.create_habit()
+        self.add_summary(habit)
         self._run_command(habito.checkin, ["Habit", "-q -9.1"])
 
         result = self._run_command(habito.list)
         expect(habit.name).to.be.within(habit.name)
         expect(u"\u2717 (-9.1)").to.be.within(result.output)
 
+    def test_habito_list_should_show_streak(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=10)
+
+        result = self._run_command(habito.list)
+
+        expect("10 days").to.be.within(result.output)
+
     def test_habito_add_should_add_a_habit(self):
         result = self._run_command(habito.add,
                                    ["dummy habit", "10.01"])
 
-        expect(models.HabitModel.select().count()).to.be(1)
-        expect(models.HabitModel.select()[0].name).to.eql("dummy habit")
+        expect(models.HabitModel.get().name).to.eql("dummy habit")
+        expect(models.Summary.get().streak).to.be(0)
 
     def test_habito_checkin_should_show_error_if_no_habit_exists(self):
         result = self._run_command(habito.checkin,
@@ -132,7 +153,15 @@ class HabitoTests(HabitoTestCase):
         expect(result.exit_code).to.be(0)
         expect(result.output.find(result_units_one)).to.not_be(-1)
 
+    def test_habito_checkin_increments_streak_for_a_noncontinuous_habit(self):
+        pass
 
+    def test_habito_checkin_increments_streak_for_a_habit(self):
+        pass
+
+    def test_habito_checkin_doesnot_update_streak_multiple_checkins(self):
+        pass
+    
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)
 
