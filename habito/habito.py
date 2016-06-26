@@ -27,7 +27,7 @@ def list():
     from terminaltables import SingleTable
     from textwrap import wrap
 
-    nr_of_dates = TERMINAL_WIDTH//10 - 3
+    nr_of_dates = TERMINAL_WIDTH // 10 - 3
     if nr_of_dates < 1:
         click.echo("Your terminal window is too small. Please make it wider and try again")
         raise SystemExit(1)

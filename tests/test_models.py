@@ -9,8 +9,8 @@ from tests import HabitoTestCase
 
 
 class ModelTests(HabitoTestCase):
-    one_day_ago = datetime.today()-timedelta(days=1)
-    two_days_ago = datetime.today()-timedelta(days=2)
+    one_day_ago = datetime.today() - timedelta(days=1)
+    two_days_ago = datetime.today() - timedelta(days=2)
 
     def setUp(self):
         models.setup(":memory:")

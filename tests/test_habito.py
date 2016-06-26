@@ -37,8 +37,10 @@ class HabitoTests(HabitoTestCase):
 
         expect(result.commands).to.equal(commands)
 
+    @patch("habito.habito.click.get_app_dir")
+    @patch("habito.habito.mkdir")
     @patch("habito.habito.models.setup")
-    def test_habito_cli_sets_up_database(self, models_setup):
+    def test_habito_cli_sets_up_database(self, models_setup, mkdir, click):
         result = self._run_command(habito.cli, ["add"])
 
         expect(models_setup.called).to.true
