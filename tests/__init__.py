@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Base test case for habito."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest import TestCase
 
 import habito.models as models
@@ -9,6 +9,9 @@ import habito.models as models
 
 class HabitoTestCase(TestCase):
     """Base test case class for habito tests."""
+
+    one_day_ago = datetime.today() - timedelta(days=1)
+    two_days_ago = datetime.today() - timedelta(days=2)
 
     def create_habit(self, name="Habit 1", created_date=datetime.now(),
                      quantum=0, magica="be awesome!"):

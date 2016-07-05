@@ -117,6 +117,7 @@ class HabitoTests(HabitoTestCase):
 
     def test_habito_checkin_should_add_data_for_a_habit(self):
         habit = self.create_habit()
+        self.add_summary(habit)
         result_units = "9.1 dummy_units"
 
         result = self._run_command(habito.checkin,
@@ -131,6 +132,7 @@ class HabitoTests(HabitoTestCase):
 
     def test_habito_checkin_can_add_multiple_data_points_on_same_day(self):
         habit = self.create_habit()
+        self.add_summary(habit)
         result_units_one = "9.1 dummy_units"
         result_units_two = "10.0001 dummy_units"
 
@@ -148,6 +150,7 @@ class HabitoTests(HabitoTestCase):
 
     def test_habito_checkin_asks_user_input_if_quantum_is_not_provided(self):
         habit = self.create_habit()
+        self.add_summary(habit)
         result_units_one = "9.1 dummy_units"
 
         result = self._run_command_with_stdin(habito.checkin, ["Habit"], "9.1")
@@ -155,15 +158,16 @@ class HabitoTests(HabitoTestCase):
         expect(result.exit_code).to.be(0)
         expect(result.output.find(result_units_one)).to.not_be(-1)
 
-    def test_habito_checkin_increments_streak_for_a_noncontinuous_habit(self):
-        pass
-
     def test_habito_checkin_increments_streak_for_a_habit(self):
-        pass
+        habit = self.create_habit()
+        self.add_activity(habit, update_date=HabitoTests.one_day_ago)
+        self.add_activity(habit, update_date=HabitoTests.two_days_ago)
+        self.add_summary(habit, streak=2)
 
-    def test_habito_checkin_doesnot_update_streak_multiple_checkins(self):
-        pass
-    
+        self._run_command(habito.checkin, ["Habit", "-q 9.1"])
+
+        expect(models.Summary.get().streak).to.equal(3)
+
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)
 

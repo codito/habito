@@ -125,7 +125,8 @@ def checkin(name, quantum):
                                     update_date=datetime.now())
 
     # Update streak for the habit
-    # TODO
+    models.Summary.update_streak(habit)
+
     click.echo("Added ", nl=False)
     click.secho("{0} {1}".format(activity.quantum, habit.units),
                 nl=False, fg='green')

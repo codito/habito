@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tests for habito models."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from sure import expect
 
 import habito.models as models
@@ -9,9 +9,6 @@ from tests import HabitoTestCase
 
 
 class ModelTests(HabitoTestCase):
-    one_day_ago = datetime.today() - timedelta(days=1)
-    two_days_ago = datetime.today() - timedelta(days=2)
-
     def setUp(self):
         models.setup(":memory:")
 
@@ -79,6 +76,81 @@ class ModelTests(HabitoTestCase):
 
 
 class SummaryTests(HabitoTestCase):
+    def setUp(self):
+        models.setup(":memory:")
+
+    def tearDown(self):
+        models.db.drop_tables([models.HabitModel, models.ActivityModel, models.Summary],
+                              safe=True)
+
+    def test_update_streak_sets_streak_as_zero_for_no_activities(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=2)
+
+        summary = models.Summary.update_streak(habit)
+
+        expect(summary.streak).to.equal(0)
+
+    def test_update_streak_doesnot_set_streak_if_last_activity_yesterday(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=2)
+        self.add_activity(habit, update_date=SummaryTests.one_day_ago)
+
+        summary = models.Summary.update_streak(habit)
+
+        expect(summary.streak).to.equal(2)
+
+    def test_update_streak_sets_streak_as_one_if_only_activity_was_today(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=2)
+        self.add_activity(habit, update_date=datetime.today())
+
+        summary = models.Summary.update_streak(habit)
+
+        expect(summary.streak).to.equal(1)
+
+    def test_update_streak_doesnot_set_streak_if_more_activities_today(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=2)
+        self.add_activity(habit, update_date=datetime.today())
+        self.add_activity(habit, update_date=datetime.today())
+        self.add_activity(habit, update_date=datetime.today())
+
+        summary = models.Summary.update_streak(habit)
+
+        expect(summary.streak).to.equal(2)
+
+    def test_update_streak_increments_streak_for_regular_activity(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=10)
+        self.add_activity(habit, update_date=SummaryTests.two_days_ago)
+        self.add_activity(habit, update_date=SummaryTests.one_day_ago)
+        self.add_activity(habit, update_date=datetime.today())
+
+        summary = models.Summary.update_streak(habit)
+
+        expect(summary.streak).to.equal(11)
+
+    def test_update_streak_sets_streak_as_one_for_irregular_activity(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=10)
+        self.add_activity(habit, update_date=SummaryTests.two_days_ago)
+        self.add_activity(habit, update_date=datetime.today())
+
+        summary = models.Summary.update_streak(habit)
+
+        expect(summary.streak).to.equal(1)
+
+    def test_update_streak_sets_streak_as_zero_for_irregular_activity(self):
+        habit = self.create_habit()
+        self.add_summary(habit, streak=10)
+        self.add_activity(habit, update_date=SummaryTests.two_days_ago)
+        # There is no activity yesterday and today
+
+        summary = models.Summary.update_streak(habit)
+
+        expect(summary.streak).to.equal(0)
+
     def test_humanize_should_add_days_for_zero_streak(self):
         habit = self.create_habit()
         self.add_summary(habit, streak=0)

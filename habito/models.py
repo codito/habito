@@ -147,6 +147,61 @@ class Summary(BaseModel):
     target_date = DateField()
     streak = IntegerField(default=0)
 
+    @classmethod
+    def update_streak(cls, habit):
+        """Update streak for a habit.
+
+        Args:
+            habit (HabitModel): Habit to update.
+        """
+        last_two_activity = ActivityModel.select()\
+            .where(ActivityModel.for_habit == habit)\
+            .order_by(ActivityModel.update_date.desc())\
+            .limit(2)
+
+        summary = cls.get(for_habit=habit)
+
+        def is_yesterday_activity(activity):
+            yesterday = (datetime.today() - timedelta(days=1)).date()
+            return activity.update_date.date() == yesterday
+
+        def is_past_activity(activity):
+            yesterday = (datetime.today() - timedelta(days=1)).date()
+            return activity.update_date.date() < yesterday
+
+        while True:
+            # Streak is 0 if there are no activities
+            if len(last_two_activity) == 0:
+                summary.streak = 0
+                break
+
+            # Streak is 0 if no activity happened today or yesterday
+            if is_past_activity(last_two_activity[0]):
+                summary.streak = 0
+                break
+
+            # If the last activity was yesterday, there can be an
+            # update today. Keep streak unchanged.
+            if is_yesterday_activity(last_two_activity[0]):
+                break
+
+            # Great, the latest activity was today.
+            if len(last_two_activity) == 1:
+                # Today's activity is the only activity
+                summary.streak = 1
+                break
+
+            # Set streak based on continuity in last two activities
+            if is_yesterday_activity(last_two_activity[1]):
+                summary.streak += 1
+            elif is_past_activity(last_two_activity[1]):
+                # There's no continuity in last two activities
+                summary.streak = 1
+            break
+
+        summary.save()
+        return summary
+
     def humanize(self):
         """Humanize a streak to include days."""
         streak = str(self.streak) + " day"
