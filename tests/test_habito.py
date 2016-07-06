@@ -12,7 +12,7 @@ from tests import HabitoTestCase
 
 
 class HabitoTests(HabitoTestCase):
-    """Test scenarios for HabitModel commands."""
+    """Test scenarios for Habito commands."""
 
     # Scenarios
     # Add: uber goal, daily commitment, automatically add weekly checkpoints
@@ -26,7 +26,7 @@ class HabitoTests(HabitoTestCase):
         models.setup(habito.database_name)
 
     def tearDown(self):
-        models.db.drop_tables([models.HabitModel, models.ActivityModel, models.Summary],
+        models.db.drop_tables([models.Habit, models.Activity, models.Summary],
                               safe=True)
 
     def test_habito_cli_sets_up_default_commandset(self):
@@ -91,7 +91,7 @@ class HabitoTests(HabitoTestCase):
         result = self._run_command(habito.add,
                                    ["dummy habit", "10.01"])
 
-        expect(models.HabitModel.get().name).to.eql("dummy habit")
+        expect(models.Habit.get().name).to.eql("dummy habit")
         expect(models.Summary.get().streak).to.be(0)
 
     def test_habito_checkin_should_show_error_if_no_habit_exists(self):
@@ -122,9 +122,8 @@ class HabitoTests(HabitoTestCase):
 
         result = self._run_command(habito.checkin,
                                    ["Habit", "-q 9.1"])
-
-        activity_entry = models.ActivityModel\
-            .get(models.ActivityModel.for_habit == habit)
+        activity_entry = models.Activity\
+            .get(models.Activity.for_habit == habit)
 
         expect(result.output.find(result_units)).to.not_be(-1)
         expect(result.output.find(habit.name)).to.not_be(-1)
@@ -139,8 +138,8 @@ class HabitoTests(HabitoTestCase):
         self._run_command(habito.checkin, ["Habit", "-q 9.1"])
         result = self._run_command(habito.checkin, ["Habit", "-q 10.0001"])
 
-        activity_entry = models.ActivityModel\
-            .select().where(models.ActivityModel.for_habit == habit)
+        activity_entry = models.Activity\
+            .select().where(models.Activity.for_habit == habit)
 
         expect(result.output.find(result_units_two)).to.not_be(-1)
         expect(result.output.find(habit.name)).to.not_be(-1)

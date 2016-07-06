@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from os import path, mkdir
 
 import habito.models as models
-from habito.models import HabitModel, ActivityModel
 
 database_name = path.join(click.get_app_dir("habito"), "habito.db")
 TERMINAL_WIDTH, TERMINAL_HEIGHT = click.get_terminal_size()
@@ -50,7 +49,7 @@ def list():
                 column_text = u'\u2713'
             habit_row.append("{0} ({1})".format(column_text, quanta))
 
-        current_streak = habit.summary.get().humanize()
+        current_streak = habit.summary.get().get_streak()
         habit_row.insert(2, current_streak)
         table_rows.append(habit_row)
 
@@ -78,11 +77,11 @@ def add(name, quantum, units):
     """
     habit_name = ' '.join(name)
     # Create an habit entry for the newly created habit
-    habit = HabitModel.create(name=habit_name,
-                              created_date=datetime.now(),
-                              quantum=quantum,
-                              units=units,
-                              magica="")
+    habit = models.Habit.create(name=habit_name,
+                                created_date=datetime.now(),
+                                quantum=quantum,
+                                units=units,
+                                magica="")
 
     # Add a default summary for the habit
     models.Summary.create(for_habit=habit,
@@ -104,7 +103,7 @@ def add(name, quantum, units):
 def checkin(name, quantum):
     """Commit data for a habit."""
     query = ' '.join(name)
-    habits = HabitModel.select().where(HabitModel.name.regexp(query))
+    habits = models.Habit.select().where(models.Habit.name.regexp(query))
     if habits.count() == 0:
         error = "No tracked habits match the query '{0}'.".format(query)
         click.secho(error, fg='red')
@@ -120,9 +119,9 @@ def checkin(name, quantum):
     habit = habits[0]
 
     # Create an activity for this checkin
-    activity = ActivityModel.create(for_habit=habit,
-                                    quantum=quantum,
-                                    update_date=datetime.now())
+    activity = models.Activity.create(for_habit=habit,
+                                      quantum=quantum,
+                                      update_date=datetime.now())
 
     # Update streak for the habit
     models.Summary.update_streak(habit)

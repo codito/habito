@@ -11,7 +11,7 @@ def setup(name):
     """Set up the database."""
     db.init(name)
     db.connect()
-    db.create_tables([HabitModel, ActivityModel, Summary], safe=True)
+    db.create_tables([Habit, Activity, Summary], safe=True)
 
 
 def get_activities(days):
@@ -27,10 +27,10 @@ def get_activities(days):
         raise ValueError("Days should be a positive integer.")
 
     from_date = datetime.now() - timedelta(days=days)
-    habits = HabitModel.select()
-    activities = ActivityModel.select()\
-        .where(ActivityModel.update_date > from_date)\
-        .order_by(ActivityModel.update_date.desc())
+    habits = Habit.select()
+    activities = Activity.select()\
+        .where(Activity.update_date > from_date)\
+        .order_by(Activity.update_date.desc())
 
     habits_with_activities = prefetch(habits, activities)
     return habits_with_activities
@@ -93,7 +93,7 @@ class BaseModel(Model):
         database = db
 
 
-class HabitModel(BaseModel):
+class Habit(BaseModel):
     """Represents a single habit.
 
     Attributes:
@@ -115,7 +115,7 @@ class HabitModel(BaseModel):
     active = BooleanField(default=True)
 
 
-class ActivityModel(BaseModel):
+class Activity(BaseModel):
     """Updates for a Habit.
 
     Attributes:
@@ -124,7 +124,7 @@ class ActivityModel(BaseModel):
         quantum (float): Amount for the habit.
     """
 
-    for_habit = ForeignKeyField(HabitModel, related_name="activities",
+    for_habit = ForeignKeyField(Habit, related_name="activities",
                                 index=True)
     quantum = DoubleField()
     update_date = DateTimeField(default=datetime.now())
@@ -141,7 +141,7 @@ class Summary(BaseModel):
         constitutes a streak.
     """
 
-    for_habit = ForeignKeyField(HabitModel, related_name="summary",
+    for_habit = ForeignKeyField(Habit, related_name="summary",
                                 index=True)
     target = DoubleField()
     target_date = DateField()
@@ -152,11 +152,11 @@ class Summary(BaseModel):
         """Update streak for a habit.
 
         Args:
-            habit (HabitModel): Habit to update.
+            habit (Habit): Habit to update.
         """
-        last_two_activity = ActivityModel.select()\
-            .where(ActivityModel.for_habit == habit)\
-            .order_by(ActivityModel.update_date.desc())\
+        last_two_activity = Activity.select()\
+            .where(Activity.for_habit == habit)\
+            .order_by(Activity.update_date.desc())\
             .limit(2)
 
         summary = cls.get(for_habit=habit)
@@ -202,7 +202,7 @@ class Summary(BaseModel):
         summary.save()
         return summary
 
-    def humanize(self):
+    def get_streak(self):
         """Humanize a streak to include days."""
         streak = str(self.streak) + " day"
         if self.streak != 1:

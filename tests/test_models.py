@@ -80,7 +80,7 @@ class SummaryTests(HabitoTestCase):
         models.setup(":memory:")
 
     def tearDown(self):
-        models.db.drop_tables([models.HabitModel, models.ActivityModel, models.Summary],
+        models.db.drop_tables([models.Habit, models.Activity, models.Summary],
                               safe=True)
 
     def test_update_streak_sets_streak_as_zero_for_no_activities(self):
@@ -151,26 +151,26 @@ class SummaryTests(HabitoTestCase):
 
         expect(summary.streak).to.equal(0)
 
-    def test_humanize_should_add_days_for_zero_streak(self):
+    def test_get_streak_should_add_days_for_zero_streak(self):
         habit = self.create_habit()
         self.add_summary(habit, streak=0)
 
-        streak = habit.summary.get().humanize()
+        streak = habit.summary.get().get_streak()
 
         expect(streak).to.equal("0 days")
 
-    def test_humanize_should_add_days_for_plural_streak(self):
+    def test_get_streak_should_add_days_for_plural_streak(self):
         habit = self.create_habit()
         self.add_summary(habit, streak=20)
 
-        streak = habit.summary.get().humanize()
+        streak = habit.summary.get().get_streak()
 
         expect(streak).to.equal("20 days")
 
-    def test_humanize_should_add_days_for_one_streak(self):
+    def test_get_streak_should_add_days_for_one_streak(self):
         habit = self.create_habit()
         self.add_summary(habit, streak=1)
 
-        streak = habit.summary.get().humanize()
+        streak = habit.summary.get().get_streak()
 
         expect(streak).to.equal("1 day")
