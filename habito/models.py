@@ -114,6 +114,23 @@ class Habit(BaseModel):
     magica = TextField()
     active = BooleanField(default=True)
 
+    @classmethod
+    def add(cls, **query):
+        """Add a habit.
+
+        Args:
+            query (kwargs): List of fields and values.
+
+        Returns:
+            A Habit.
+        """
+        habit = cls.create(**query)
+        Summary.create(for_habit=habit,
+                       target=0,
+                       target_date=datetime.now(),
+                       streak=0)
+        return habit
+
 
 class Activity(BaseModel):
     """Updates for a Habit.

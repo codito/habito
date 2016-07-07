@@ -75,6 +75,40 @@ class ModelTests(HabitoTestCase):
         expect(h[1][1]).to.equal([(0, None), (1, 10.0), (2, None)])
 
 
+class HabitTests(HabitoTestCase):
+    def setUp(self):
+        models.setup(":memory:")
+
+    def tearDown(self):
+        models.db.drop_tables([models.Habit, models.Activity, models.Summary],
+                              safe=True)
+
+    def test_habit_add_creates_a_habit(self):
+        dummy_date = datetime.now()
+        habit = models.Habit.add(name="Dummy Habit",
+                                 created_date=dummy_date,
+                                 quantum=1,
+                                 units="dummy_units",
+                                 magica="magica")
+
+        expect(habit.name).to.equal("Dummy Habit")
+        expect(habit.created_date).to.equal(dummy_date)
+        expect(habit.quantum).to.equal(1)
+        expect(habit.units).to.equal("dummy_units")
+        expect(habit.magica).to.equal("magica")
+        expect(habit.frequency).to.equal(1)
+        expect(habit.active).to.true
+
+    def test_habit_add_creates_a_summary_for_habit(self):
+        habit = models.Habit.add(name="Dummy Habit",
+                                 quantum=1,
+                                 units="dummy_units",
+                                 magica="magica")
+
+        summary = models.Summary.get(for_habit=habit)
+        expect(summary.streak).to.equal(0)
+
+
 class SummaryTests(HabitoTestCase):
     def setUp(self):
         models.setup(":memory:")
