@@ -76,18 +76,11 @@ def add(name, quantum, units):
         quantum (float): Quantity of progress every day.
     """
     habit_name = ' '.join(name)
-    # Create an habit entry for the newly created habit
-    habit = models.Habit.create(name=habit_name,
-                                created_date=datetime.now(),
-                                quantum=quantum,
-                                units=units,
-                                magica="")
-
-    # Add a default summary for the habit
-    models.Summary.create(for_habit=habit,
-                          target=0,
-                          target_date=datetime.now(),
-                          streak=0)
+    models.Habit.add(name=habit_name,
+                     created_date=datetime.now(),
+                     quantum=quantum,
+                     units=units,
+                     magica="")
 
     click.echo("You have commited to ", nl=False)
     click.secho("{0} {1}".format(quantum, units), nl=False, fg='green')
