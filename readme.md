@@ -4,7 +4,7 @@ Simple commandline habits tracker.
 [![Linux Build Status](https://img.shields.io/travis/codito/habito.svg)](https://travis-ci.org/codito/habito)
 [![Windows Build status](https://img.shields.io/appveyor/ci/codito/habito.svg)](https://ci.appveyor.com/project/codito/habito)
 [![codecov coverage](https://img.shields.io/codecov/c/github/codito/habito.svg)](http://codecov.io/github/codito/habito?branch=master)
-[![PyPI](https://img.shields.io/pypi/dm/habito.svg)](https://pypi.python.org/pypi/habito)
+[![PyPI](https://img.shields.io/pypi/v/habito.svg)](https://pypi.python.org/pypi/habito)
 
 
 # Installation
