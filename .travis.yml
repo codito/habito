@@ -4,6 +4,7 @@ python:
   - "3.4"
 
 before_install:
+  - "env"
   - "pip install codecov"
 
 install:
