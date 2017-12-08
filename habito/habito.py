@@ -2,12 +2,14 @@
 """Simple command line based habits tracker."""
 
 import click
+import logging
 
 from datetime import datetime, timedelta
 from os import path, mkdir
 
 import habito.models as models
 
+logger = logging.getLogger("habito")
 database_name = path.join(click.get_app_dir("habito"), "habito.db")
 TERMINAL_WIDTH, TERMINAL_HEIGHT = click.get_terminal_size()
 
@@ -28,6 +30,7 @@ def list():
 
     nr_of_dates = TERMINAL_WIDTH // 10 - 3
     if nr_of_dates < 1:
+        logger.debug("list: Observed terminal width = {0}.".format(TERMINAL_WIDTH))
         click.echo("Your terminal window is too small. Please make it wider and try again")
         raise SystemExit(1)
 
