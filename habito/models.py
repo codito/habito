@@ -22,6 +22,7 @@ def get_activities(days):
 
     Returns:
         List of habits with the activities.
+
     """
     if days < 0:
         raise ValueError("Days should be a positive integer.")
@@ -47,6 +48,7 @@ def get_daily_activities(days):
         sum of all activities for the habit for the day.
 
         E.g. [(habit, [(day1, activity), (day2, activity)..]), ..]
+
     """
     habits_with_activities = get_activities(days)
     daily_habits = []
@@ -104,6 +106,7 @@ class Habit(BaseModel):
         units (str): Units of the quantum.
         magica (str): Why is this habit interesting?
         active (bool): True if the habit is active
+
     """
 
     name = CharField()
@@ -123,6 +126,7 @@ class Habit(BaseModel):
 
         Returns:
             A Habit.
+
         """
         habit = cls.create(**query)
         Summary.create(for_habit=habit,
@@ -139,6 +143,7 @@ class Activity(BaseModel):
         for_habit (int): Id of the Habit. Foreign key.
         update_date (date): Date time of the update.
         quantum (float): Amount for the habit.
+
     """
 
     for_habit = ForeignKeyField(Habit, related_name="activities",
@@ -156,6 +161,7 @@ class Summary(BaseModel):
         target_date (date): Date for the target.
         streak (int): Current streak for a habit. Continuous activity
         constitutes a streak.
+
     """
 
     for_habit = ForeignKeyField(Habit, related_name="summary",
