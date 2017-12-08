@@ -30,6 +30,7 @@ def list():
 
     nr_of_dates = TERMINAL_WIDTH // 10 - 3
     if nr_of_dates < 1:
+        logger.debug("list: Actual terminal width = {0}.".format(click.get_terminal_size()[0]))
         logger.debug("list: Observed terminal width = {0}.".format(TERMINAL_WIDTH))
         click.echo("Your terminal window is too small. Please make it wider and try again")
         raise SystemExit(1)
