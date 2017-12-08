@@ -4,8 +4,8 @@ python:
   - "3.4"
 
 before_install:
-  - "tput cols"
   - "pip install codecov"
+  - stty cols 80
 
 install:
   - "pip install -r development.txt"
