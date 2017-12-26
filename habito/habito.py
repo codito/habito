@@ -28,7 +28,7 @@ def list():
     from terminaltables import SingleTable
     from textwrap import wrap
 
-    nr_of_dates = TERMINAL_WIDTH // 10 - 3
+    nr_of_dates = TERMINAL_WIDTH // 10 - 4
     if nr_of_dates < 1:
         logger.debug("list: Actual terminal width = {0}.".format(click.get_terminal_size()[0]))
         logger.debug("list: Observed terminal width = {0}.".format(TERMINAL_WIDTH))
@@ -49,7 +49,7 @@ def list():
             date_mod = datetime.today() - timedelta(days=daily_data[0])
             quanta = daily_data[1]
 
-            if quanta is None or quanta >= habit.quantum:
+            if quanta is not None and quanta >= habit.quantum:
                 column_text = u'\u2713'
             habit_row.append("{0} ({1})".format(column_text, quanta))
 
@@ -92,11 +92,18 @@ def add(name, quantum, units):
     click.secho("{0}".format(habit_name), fg='green', nl=False)
     click.echo(" every day!")
 
+
 @cli.command()
 @click.argument("id", type=click.INT)
 @click.option('--name', '-n', help="The new name (leave empty to leave unchanged)")
 @click.option('--quantum', '-q', help="The new quantum (leave empty to leave unchanged)", type=click.FLOAT)
 def edit(id, name, quantum):
+    """Edit a habit.
+
+    Args:
+        name (str): Name of the habit.
+        quantum (float): Quantity of progress every day.
+    """
     try:
         habit = models.Habit.get(models.Habit.id == id)
     except models.Habit.DoesNotExist:
@@ -110,8 +117,15 @@ def edit(id, name, quantum):
 
 @cli.command()
 @click.argument("id", type=click.INT)
-@click.option("--keeplogs", is_flag=True, default=False)
+@click.option("--keeplogs", is_flag=True, default=False,
+              help="Preserve activity logs for the habit.")
 def delete(id, keeplogs):
+    """Delete a habit.
+
+    Args:
+        name (str): Name of the habit.
+        quantum (float): Quantity of progress every day.
+    """
     try:
         habit = models.Habit.get(models.Habit.id == id)
     except models.Habit.DoesNotExist:

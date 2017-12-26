@@ -13,7 +13,7 @@ class HabitoTestCase(TestCase):
     one_day_ago = datetime.today() - timedelta(days=1)
     two_days_ago = datetime.today() - timedelta(days=2)
 
-    def create_habit(self, name="Habit 1", created_date=datetime.now(),
+    def create_habit(self, name="HabitOne", created_date=datetime.now(),
                      quantum=0, magica="be awesome!"):
         habit = models.Habit.create(name=name,
                                     created_date=created_date,
