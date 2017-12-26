@@ -32,8 +32,11 @@ class HabitoTests(HabitoTestCase):
     def test_habito_cli_sets_up_default_commandset(self):
         result = habito.cli
 
-        commands = { 'list': habito.list, 'add': habito.add,
-                    'checkin': habito.checkin }
+        commands = {'list': habito.list,
+                    'add': habito.add,
+                    'checkin': habito.checkin,
+                    'edit': habito.edit,
+                    'delete': habito.delete}
 
         expect(result.commands).to.equal(commands)
 
@@ -76,7 +79,8 @@ class HabitoTests(HabitoTestCase):
         self._run_command(habito.checkin, ["Habit", "-q -9.1"])
 
         result = self._run_command(habito.list)
-        expect(habit.name).to.be.within(habit.name)
+
+        expect(habit.name).to.be.within(result.output)
         expect(u"\u2717 (-9.1)").to.be.within(result.output)
 
     def test_habito_list_should_show_streak(self):
@@ -166,6 +170,57 @@ class HabitoTests(HabitoTestCase):
         self._run_command(habito.checkin, ["Habit", "-q 9.1"])
 
         expect(models.Summary.get().streak).to.equal(3)
+
+    def test_edit(self):
+        habit = self.create_habit()
+        self.add_summary(habit)
+
+        edit_result = self._run_command(habito.edit, [str(habit.id), "-n EHabit"])
+
+        edit_result.output.should.equal("Habit with id 1 has been saved with"
+                                        " name: EHabit and quantum: 0.0\n")
+        list_result = self._run_command(habito.list)
+        expect("EHabit").to.be.within(list_result.output)
+        expect("Habit 1").to_not.be.within(list_result.output)
+
+    def test_non_existing_edit(self):
+        edit_result = self._run_command(habito.edit, [str(10), "-n test"])
+
+        edit_result.output.should.equal("The habit you're trying to edit does not exist!\n")
+
+        expect(edit_result.exit_code).to.be(1)
+
+    def test_delete(self):
+        self.create_habit()
+        self._run_command(habito.checkin, ["Habit", "-q 3"])
+
+        delete_result = self._run_command_with_stdin(habito.delete, ["1"], "y")
+
+        expect("Are you sure you want to delete habit 1: Habit 1 (this cannot be undone!)").to.be.within(delete_result.output)
+        expect("Habit 1: Habit 1 has been deleted!").to.be.within(delete_result.output)
+        expect(habito.models.Habit.select().count()).to.equal(0)
+
+    def test_delete_should_not_delete_for_no_confirm(self):
+        self.create_habit()
+        self._run_command(habito.checkin, ["Habit", "-q 3"])
+
+        delete_result = self._run_command_with_stdin(habito.delete, ["1"], "n")
+
+        expect("Are you sure you want to delete habit 1: Habit 1 (this cannot be undone!)").to.be.within(delete_result.output)
+        expect(habito.models.Habit.select().count()).to.equal(1)
+
+    def test_non_existing_delete(self):
+        delete_result = self._run_command(habito.delete, ["20"])
+
+        expect("The habit you want to remove does not seem to exist!").to.be.within(delete_result.output)
+
+    def test_delete_with_keep_logs(self):
+        self.create_habit()
+        self._run_command(habito.checkin, ["Habit 1", "-q 3"])
+
+        delete_result = self._run_command_with_stdin(habito.delete, ["1", "--keeplogs"], "y")
+
+        expect(habito.models.Activity.select().count()).to.equal(1)
 
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)

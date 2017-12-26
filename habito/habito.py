@@ -43,7 +43,7 @@ def list():
     table_rows = [table_title]
     for habit_data in models.get_daily_activities(nr_of_dates):
         habit = habit_data[0]
-        habit_row = [habit.name, str(habit.quantum)]
+        habit_row = [str(habit.id) + ": " + habit.name, str(habit.quantum)]
         for daily_data in habit_data[1]:
             column_text = u'\u2717'
             date_mod = datetime.today() - timedelta(days=daily_data[0])
@@ -91,6 +91,43 @@ def add(name, quantum, units):
     click.echo(" of ")
     click.secho("{0}".format(habit_name), fg='green', nl=False)
     click.echo(" every day!")
+
+@cli.command()
+@click.argument("id", type=click.INT)
+@click.option('--name', '-n', help="The new name (leave empty to leave unchanged)")
+@click.option('--quantum', '-q', help="The new quantum (leave empty to leave unchanged)", type=click.FLOAT)
+def edit(id, name, quantum):
+    try:
+        habit = models.Habit.get(models.Habit.id == id)
+    except models.Habit.DoesNotExist:
+        click.echo("The habit you're trying to edit does not exist!")
+        raise SystemExit(1)
+    habit.name = name.strip() or habit.name
+    habit.quantum = quantum or habit.quantum
+    habit.save()
+    click.echo("Habit with id {} has been saved with name: {} and quantum: {}".format(id, habit.name, habit.quantum))
+
+
+@cli.command()
+@click.argument("id", type=click.INT)
+@click.option("--keeplogs", is_flag=True, default=False)
+def delete(id, keeplogs):
+    try:
+        habit = models.Habit.get(models.Habit.id == id)
+    except models.Habit.DoesNotExist:
+        click.echo("The habit you want to remove does not seem to exist!")
+        raise SystemExit(1)
+    confirm = click.confirm("Are you sure you want to delete habit"
+                            " {}: {} (this cannot be undone!)"
+                            .format(habit.id, habit.name))
+    if confirm:
+        click.echo("Habit {}: {} has been deleted!".format(habit.id, habit.name))
+        if not keeplogs:
+            ad = models.Activity.delete().where(models.Activity.for_habit == habit.id)
+            ad.execute()
+        habit.delete_instance()
+    else:
+        click.echo("Habit {}: {} has not been deleted!".format(habit.id, habit.name))
 
 
 @cli.command()
