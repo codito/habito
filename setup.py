@@ -1,8 +1,22 @@
 """Setup for Habito app."""
 
-from setuptools import setup, find_packages
+import os
+import sys
+from setuptools import setup, find_packages, Command
+from shutil import rmtree
 from codecs import open
 from os import path
+
+# Package meta-data.
+NAME = "habito"
+DESCRIPTION = "Simple command line habits tracker"
+URL = "https://github.com/codito/habito"
+EMAIL = "arun@codito.in"
+AUTHOR = "Arun Mahapatra"
+# VERSION = (1, 0, a2)
+
+# Dependencies required for execution
+REQUIRED = ["click", "peewee", "terminaltables"]
 
 here = path.abspath(path.dirname(__file__))
 
@@ -10,24 +24,57 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "readme.md"), encoding="utf-8") as f:
     long_description = f.read()
 
+
+class UploadCommand(Command):
+    """Support setup.py upload."""
+
+    description = "Build and publish the package."
+    user_options = []
+
+    @staticmethod
+    def status(s):
+        """Print things in bold."""
+        print("\033[1m{0}\033[0m".format(s))
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            self.status("Removing previous builds…")
+            rmtree(os.path.join(here, "dist"))
+        except OSError:
+            pass
+
+        self.status("Building Source and Wheel (universal) distribution…")
+        os.system("{0} setup.py sdist bdist_wheel --universal"
+                  .format(sys.executable))
+
+        self.status("Uploading the package to PyPi via Twine…")
+        os.system("twine upload dist/*")
+
+        sys.exit()
+
+
 setup(
-    name="habito",
-
-    version="1.0a2",
-
-    description="Simple command line habits tracker",
+    name=NAME,
+    version="1.0a2",    # FIXME semantic versioning
+    description=DESCRIPTION,
     long_description=long_description,
+    url=URL,
+    author=AUTHOR,
+    author_email=EMAIL,
 
-    # The project"s main homepage.
-    url="https://github.com/codito/habito",
+    packages=find_packages(exclude=["contrib", "docs", "tests*"]),
+    entry_points={
+        "console_scripts": ["habito=habito.habito:cli"],
+    },
+    install_requires=REQUIRED,
 
-    # Author details
-    author="Arun Mahapatra",
-    author_email="pratikarun+habito@gmail.com",
-
-    # Choose your license
     license="MIT",
-
     classifiers=[
         "Development Status :: 3 - Alpha",
 
@@ -48,19 +95,13 @@ setup(
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
 
         "Topic :: Utilities",
     ],
-
     keywords="habits goals track tracking quantified self",
-
-    packages=find_packages(exclude=["contrib", "docs", "tests*"]),
-
-    install_requires=["click", "peewee", "terminaltables"],
-
-    entry_points={
-        "console_scripts": [
-            "habito=habito.habito:cli",
-        ],
+    # $ setup.py publish support.
+    cmdclass={
+        "upload": UploadCommand,
     },
 )
