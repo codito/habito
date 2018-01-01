@@ -73,15 +73,27 @@ class HabitoTests(HabitoTestCase):
                     expect(date_string).to.be.within(result.output)
         habito.TERMINAL_WIDTH = 80
 
-    def test_habito_list_lists_tracked_habits(self):
+    def test_habito_list_lists_off_track_habits(self):
         habit = self.create_habit()
         self.add_summary(habit)
         self._run_command(habito.checkin, ["Habit", "-q -9.1"])
 
         result = self._run_command(habito.list)
 
+        # Habit is off track with quanta <= goal. Verify 'x'
         expect(habit.name).to.be.within(result.output)
         expect(u"\u2717 (-9.1)").to.be.within(result.output)
+
+    def test_habito_list_lists_on_track_habits(self):
+        habit = self.create_habit()
+        self.add_summary(habit)
+        self._run_command(habito.checkin, ["Habit", "-q 9.1"])
+
+        result = self._run_command(habito.list)
+
+        # Habit is on track with quanta >= goal. Verify 'tick'
+        expect(habit.name).to.be.within(result.output)
+        expect(u"\u2713 (9.1)").to.be.within(result.output)
 
     def test_habito_list_should_show_streak(self):
         habit = self.create_habit()
