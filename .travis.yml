@@ -1,19 +1,20 @@
+sudo: false
 language: python
+cache: pip
 
 python:
   - "3.4"
 
 before_install:
-  - "pip install codecov"
   - stty cols 80
 
 install:
-  - "pip install -r development.txt"
-  - "pip freeze"
+  - pip install pipenv
+  - pipenv install --dev
+  - pipenv install codecov --dev
 
 script:
-  - flake8
-  - pydocstyle
-  - nosetests
+  - pipenv run flake8
+  - pipenv run nosetests
 
-after_success: codecov
+after_success: pipenv run codecov

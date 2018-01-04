@@ -21,7 +21,7 @@ REQUIRED = ["click", "peewee", "terminaltables"]
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-with open(path.join(here, "readme.md"), encoding="utf-8") as f:
+with open(path.join(here, "readme.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
 
@@ -64,7 +64,7 @@ class UploadCommand(Command):
 
 setup(
     name=NAME,
-    version="1.0a2",    # FIXME semantic versioning
+    version="1.0a4",    # FIXME semantic versioning
     description=DESCRIPTION,
     long_description=long_description,
     url=URL,

@@ -20,9 +20,11 @@ init:
 
 build_script:
 - cd /D %APPVEYOR_BUILD_FOLDER%
-- pip install -r development.txt
-- python setup.py build
+- pip install pipenv
+- pipenv install --dev
+- pipenv run flake8
+- pipenv run setup.py build
 
 test_script:
 - cd /D %APPVEYOR_BUILD_FOLDER%
-- nosetests
+- pipenv run nosetests
