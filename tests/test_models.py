@@ -13,7 +13,7 @@ class ModelTests(HabitoTestCase):
         models.setup(":memory:")
 
     def test_setup_creates_tables(self):
-        expect(len(models.db.get_tables())).to.be(3)
+        expect(len(models.db.get_tables())).to.be(4)
 
     def test_get_activities_raises_for_invalid_days(self):
         ga = models.get_activities
@@ -73,6 +73,27 @@ class ModelTests(HabitoTestCase):
         expect(h[1][0]).to.equal(habit2)
         expect(h[0][1]).to.equal([(0, None), (1, 20.0), (2, 1.0)])
         expect(h[1][1]).to.equal([(0, None), (1, 10.0), (2, None)])
+
+
+class MigrationTests(HabitoTestCase):
+    def setUp(self):
+        # models.setup(":memory:")
+        models.db.init(":memory:")
+        models.db.connect()
+
+    def test_get_version_returns_none_if_db_doesnot_exist(self):
+        # models.db.drop_tables(models.Config)
+        m = models.Migration(models.db)
+        version = m.get_version()
+
+        expect(version).to.none
+
+    def test_get_version_returns_none_if_key_doesnot_exist(self):
+        models.db.create_table(models.Config)
+        m = models.Migration(models.db)
+        version = m.get_version()
+
+        expect(version).to.none
 
 
 class HabitTests(HabitoTestCase):

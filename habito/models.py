@@ -3,6 +3,7 @@
 
 from datetime import datetime, timedelta
 from peewee import *    # noqa
+from playhouse import reflection
 
 db = SqliteDatabase(None)
 
@@ -11,7 +12,7 @@ def setup(name):
     """Set up the database."""
     db.init(name)
     db.connect()
-    db.create_tables([Habit, Activity, Summary], safe=True)
+    db.create_tables([Config, Habit, Activity, Summary], safe=True)
 
 
 def get_activities(days):
@@ -93,6 +94,19 @@ class BaseModel(Model):
         """Meta class for the model."""
 
         database = db
+
+
+class Config(BaseModel):
+    """Database configuration.
+
+    Attributes:
+        name (str): Name of the setting
+        value (str): Value
+
+    """
+
+    name = CharField(unique=True)
+    value = CharField()
 
 
 class Habit(BaseModel):
@@ -231,3 +245,30 @@ class Summary(BaseModel):
         if self.streak != 1:
             streak += "s"
         return streak
+
+
+class Migration:
+    """Migrations for habito database."""
+
+    def __init__(self, database):
+        """Create an instance of the migration.
+
+        Args:
+            database: database instance
+        """
+        self._db = database
+
+    def get_version(self):
+        """Get the database version.
+
+        Args:
+            database (Database): peewee database instance
+        """
+        try:
+            reflect = reflection.introspect(self._db)
+            if "config" not in reflect.model_names:
+                return None
+            version = Config.get(Config.name == "version")
+        except Config.DoesNotExist:
+            version = None
+        return version
