@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 """Models for habito."""
 
+import logging
 from datetime import datetime, timedelta
 from peewee import *    # noqa
 from playhouse import reflection
+from playhouse.migrate import SqliteMigrator, migrate
 
-db = SqliteDatabase(None)
+DB_VERSION = 2
+db = SqliteDatabase(None, pragmas=(('foreign_keys', 'on'),))
+logger = logging.getLogger("habito.models")
 
 
 def setup(name):
     """Set up the database."""
     db.init(name)
     db.connect()
-    db.create_tables([Config, Habit, Activity, Summary], safe=True)
+    Migration(db).execute()
 
 
 def get_activities(days):
@@ -250,6 +254,11 @@ class Summary(BaseModel):
 class Migration:
     """Migrations for habito database."""
 
+    # Error codes for the migrations
+    error_codes = {-1: "not run",
+                   0: "success",
+                   1: "generic failure"}
+
     def __init__(self, database):
         """Create an instance of the migration.
 
@@ -261,14 +270,108 @@ class Migration:
     def get_version(self):
         """Get the database version.
 
+        DB version is 0 if database is new.
+        DB version is 1 if tables exist, but Config table is not available
+        DB version is the actual version otherwise.
+
         Args:
             database (Database): peewee database instance
+
+        Returns:
+            Database version (int).
+
         """
+        # Return version 1 if other tables (excluding Config) exist
         try:
-            reflect = reflection.introspect(self._db)
-            if "config" not in reflect.model_names:
-                return None
-            version = Config.get(Config.name == "version")
+            tables = reflection.introspect(self._db).model_names
+            if len(tables) == 0:
+                return 0
+            if "config" not in tables:
+                return 1
+            version = int(Config.get(Config.name == "version").value)
         except Config.DoesNotExist:
-            version = None
+            # Config table exists but version is not present
+            version = 1
         return version
+
+    def execute(self, list_only=False):
+        """Migrate the database schema to latest version."""
+        # It's a new database if `act_ver=0`
+        # Set current version to 0, we will only run migration_0
+        act_ver = self.get_version()
+        cur_ver = 0 if act_ver == 0 else DB_VERSION
+        logger.debug("DB version: actual = {0}, current = {1}"
+                     .format(act_ver, cur_ver))
+
+        if cur_ver != 0 and act_ver == cur_ver:
+            logger.debug("DB versions are same. Skip migration.")
+            return {}
+
+        def get_migration(version):
+            return self.__getattribute__("_migration_{}".format(version))
+
+        m = {x: (get_migration(x), -1) for x in range(act_ver, cur_ver+1)}
+        if list_only:
+            # List the migration and status without running
+            return {f[0]: f[1][1] for f in m.items()}
+
+        # Run the migrations and report their status
+        return {f[0]: f[1][0]() for f in m.items()}
+
+    def _migration_0(self):
+        """Set latest state of the database schema."""
+        self._db.create_tables([Config, Habit, Activity, Summary], safe=True)
+        Config.create(name="version", value=str(DB_VERSION))
+        return 0
+
+    def _migration_1(self):
+        """Apply migration #1."""
+        tables = reflection.introspect(self._db).model_names
+        migrator = SqliteMigrator(self._db)
+        if "habitmodel" in tables and "activitymodel" in tables:
+            with self._db.transaction():
+                migrate(
+                    migrator.rename_table("habitmodel", "habit"),
+                    migrator.rename_table("activitymodel", "activity"))
+            logger.debug("Migration #1: Renamed habit, activity tables.")
+
+        # Create new tables
+        self._db.create_tables([Config, Summary], safe=True)
+        logger.debug("Migration #1: Created tables.")
+
+        # Set DB version
+        Config.insert(name="version", value="1").upsert().execute()
+        logger.debug("Migration #1: DB version updated to 1.")
+
+        # Update summaries
+        for h in Habit.select():
+            activities = Activity.select()\
+                                 .where(Activity.for_habit == h)\
+                                 .order_by(Activity.update_date).asc()
+            streak = 0
+            if len(activities) != 0:
+                last_date = activities[0].update_date
+                for a in activities:
+                    delta = last_date - a.update_date
+                    if abs(delta.days) > 1:
+                        break
+                    streak += 1
+                    last_date = a.update_date
+
+            # Update summary for the habit
+            s = Summary.get_or_create(for_habit=h, target=0,
+                                      target_date=h.created_date)
+            s[0].streak = streak
+            s[0].save()
+        logger.debug("Migration #1: Summary updated for habits.")
+        return 0
+
+    def _migration_2(self):
+        """Apply migration #2.
+
+        This is a dummy migration step.
+        """
+        # Set DB version
+        Config.insert(name="version", value="2").upsert().execute()
+        logger.debug("Migration #2: DB version updated to 2.")
+        return 0

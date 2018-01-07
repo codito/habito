@@ -77,23 +77,132 @@ class ModelTests(HabitoTestCase):
 
 class MigrationTests(HabitoTestCase):
     def setUp(self):
-        # models.setup(":memory:")
         models.db.init(":memory:")
         models.db.connect()
 
-    def test_get_version_returns_none_if_db_doesnot_exist(self):
-        # models.db.drop_tables(models.Config)
-        m = models.Migration(models.db)
-        version = m.get_version()
+        self.migration = models.Migration(models.db)
 
-        expect(version).to.none
+    # Version scenarios
+    def test_get_version_returns_zero_if_db_doesnot_exist(self):
+        version = self.migration.get_version()
 
-    def test_get_version_returns_none_if_key_doesnot_exist(self):
+        expect(version).to.eql(0)
+
+    def test_get_version_returns_one_if_other_tables_exist(self):
+        self._setup_db_exist_no_config()
+
+        version = self.migration.get_version()
+
+        expect(version).to.eql(1)
+
+    def test_get_version_returns_one_if_key_doesnot_exist(self):
+        self._setup_db_exist_config_version_doesnot_exist()
+
+        version = self.migration.get_version()
+
+        expect(version).to.eql(1)
+
+    def test_get_version_returns_version_if_config_exists(self):
+        self._setup_db_exist_config_version()
+
+        version = self.migration.get_version()
+
+        expect(version).to.eql(2)
+
+    # Migration scenario: DB doesn't exist
+    def test_execute_list_result_db_doesnot_exist(self):
+        result = self.migration.execute(list_only=True)
+
+        expect(result).to.eql({0: -1})
+
+    def test_execute_run_result_db_doesnot_exist(self):
+        ver = str(models.DB_VERSION)
+
+        result = self.migration.execute()
+
+        expect(result).to.eql({0: 0})
+        expect(models.Config.get(models.Config.name == "version").value).to.eql(ver)
+        expect(models.Habit.select().count()).to.eql(0)
+        expect(models.Activity.select().count()).to.eql(0)
+        expect(models.Summary.select().count()).to.eql(0)
+
+    # Migration scenario: DB is at version 1
+    def test_execute_list_result_db_exist_without_config(self):
+        self._setup_db_exist_no_config()
+
+        result = self.migration.execute(list_only=True)
+
+        expect(result).to.eql({1: -1, 2: -1})
+
+    def test_execute_run_result_db_exist_without_config(self):
+        self._setup_db_exist_no_config()
+
+        result = self.migration.execute()
+
+        expect(result).to.eql({1: 0, 2: 0})
+        self._verify_row_counts_for_version_2()
+        self._verify_summary_for_version_2()
+
+    def test_execute_migration_1_to_2_is_idempotent(self):
+        self._setup_db_exist_no_config()
+        result = self.migration.execute()
+        models.Config.update(value="1").where(models.Config.name == "version").execute()
+
+        result = self.migration.execute()
+
+        expect(result).to.eql({1: 0, 2: 0})
+        self._verify_row_counts_for_version_2()
+        self._verify_summary_for_version_2()
+
+    # Migration scenario: DB is at version 2
+    def test_execute_list_result_db_exist_with_config(self):
+        self._setup_db_exist_config_version()
+
+        result = self.migration.execute(list_only=True)
+
+        expect(result).to.eql({})
+
+    def test_execute_run_result_db_exist_with_config(self):
+        self._setup_db_exist_config_version()
+
+        result = self.migration.execute()
+
+        expect(result).to.eql({})
+
+    # Fixtures for DB states
+    def _setup_db_exist_no_config(self):
+        """DB version 1 setup."""
+        with open("tests/sql/01.sql", "r") as f:
+            script = f.read()
+            for s in script.split(";"):
+                models.db.execute_sql(s + ";")
+
+    def _setup_db_exist_config_version_doesnot_exist(self):
+        """DB version 1 setup with error.
+
+        Config table exists, but version key is not present.
+        """
         models.db.create_table(models.Config)
-        m = models.Migration(models.db)
-        version = m.get_version()
 
-        expect(version).to.none
+    def _setup_db_exist_config_version(self):
+        """DB version 2 setup."""
+        models.db.create_table(models.Config)
+        models.Config.create(name="version", value="2")
+
+    # Validations for DB states
+    def _verify_row_counts_for_version_2(self):
+        ver = str(models.DB_VERSION)
+
+        expect(models.Config.get(models.Config.name == "version").value).to.eql(ver)
+        expect(models.Habit.select().count()).to.eql(2)
+        expect(models.Activity.select().count()).to.eql(4)
+        expect(models.Summary.select().count()).to.eql(2)
+
+    def _verify_summary_for_version_2(self):
+        s1 = models.Summary.get(models.Summary.id == 1).streak
+        s2 = models.Summary.get(models.Summary.id == 2).streak
+        expect(s1).to.eql(2)
+        expect(s2).to.eql(1)
 
 
 class HabitTests(HabitoTestCase):
