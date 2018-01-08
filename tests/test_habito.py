@@ -105,14 +105,14 @@ class HabitoTests(HabitoTestCase):
 
     def test_habito_add_should_add_a_habit(self):
         result = self._run_command(habito.add,
-                                   ["dummy habit", "10.01"])
+                ["dummy habit", "10.01"])
 
         expect(models.Habit.get().name).to.eql("dummy habit")
         expect(models.Summary.get().streak).to.be(0)
 
     def test_habito_checkin_should_show_error_if_no_habit_exists(self):
         result = self._run_command(habito.checkin,
-                                   ["dummy habit", "-q 9.1"])
+                ["dummy habit", "-q 9.1"])
 
         expect(result.exit_code).to.be(0)
         expect(result.output.startswith("No tracked habits match the")).to.true
@@ -144,6 +144,32 @@ class HabitoTests(HabitoTestCase):
         expect(result.output.find(result_units)).to.not_be(-1)
         expect(result.output.find(habit.name)).to.not_be(-1)
         expect(activity_entry.quantum).to.eql(9.1)
+
+    def test_habito_checkin_should_update_past_date(self):
+        habit = self.create_habit()
+        self.add_summary(habit)
+        for i in range(5):
+            d = datetime.now() - timedelta(days=i)
+            date_str = "{d.month}/{d.day}".format(d=d).strip()
+            checkin_result = self._run_command(habito.checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"])
+            expect("for date: {}".format(date_str)).to.be.within(checkin_result.output)
+            expect("35.0 dummy_units").to.be.within(checkin_result.output)
+        list_result = self._run_command(habito.list)
+        expect(list_result.output.count("35")).to.equal(5)
+
+    def test_habito_checkin_should_update_past_year(self):
+        habit = self.create_habit()
+        self.add_summary(habit)
+        d = datetime.now() + timedelta(days=2)
+        date_str = "{d.month}/{d.day}".format(d=d).strip()
+
+        checkin_result = self._run_command(habito.checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"])
+
+        a = models.Activity.select()\
+            .where(models.Activity.update_date.year == d.year-1).get()
+        expect(a.quantum).to.eql(35.0)
+        expect("for date: {}".format(date_str)).to.be.within(checkin_result.output)
+        expect("35.0 dummy_units").to.be.within(checkin_result.output)
 
     def test_habito_checkin_can_add_multiple_data_points_on_same_day(self):
         habit = self.create_habit()
@@ -237,7 +263,7 @@ class HabitoTests(HabitoTestCase):
         delete_result = self._run_command_with_stdin(habito.delete, ["1", "--keeplogs"], "y")
 
         expect(habito.models.Activity.select().count()).to.equal(1)
-
+    
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)
 

@@ -146,9 +146,10 @@ def delete(id, keeplogs):
 
 @cli.command()
 @click.argument("name", nargs=-1)
+@click.option("--date", "-d", help="The date (defaults to today)", default=datetime.now().strftime("%m/%d"))
 @click.option("--quantum", "-q", help="Quanta of data for the day",
               prompt=True)
-def checkin(name, quantum):
+def checkin(name, date, quantum):
     """Commit data for a habit."""
     query = ' '.join(name)
     habits = models.Habit.select().where(models.Habit.name.regexp(query))
@@ -164,12 +165,16 @@ def checkin(name, quantum):
             click.echo(h.name)
         return
 
+    # Set a date for this checkin. Use past year if month/day is in future
+    date = date.strip()
+    d = datetime.strptime(date, "%m/%d").replace(year=datetime.now().year)
+    update_date = d if d < datetime.now() else d.replace(year=d.year-1)
     habit = habits[0]
 
     # Create an activity for this checkin
     activity = models.Activity.create(for_habit=habit,
                                       quantum=quantum,
-                                      update_date=datetime.now())
+                                      update_date=update_date)
 
     # Update streak for the habit
     models.Summary.update_streak(habit)
@@ -179,6 +184,8 @@ def checkin(name, quantum):
                 nl=False, fg='green')
     click.echo(" to habit")
     click.secho(habit.name, fg='green')
+    click.echo("for date: ", nl=False)
+    click.secho(date, fg='green')
 
 
 if __name__ == "__main__":
