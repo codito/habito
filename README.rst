@@ -12,6 +12,11 @@ Installation
 
     pip install habito
 
+Archlinux users may install ``habito`` from AUR_.
+
+.. _AUR: https://aur.archlinux.org/packages/habito/
+
+
 Usage
 =====
 
@@ -64,3 +69,4 @@ at github issues page. Your patches are welcome!
    :target: http://codecov.io/github/codito/habito?branch=master
 .. |PyPI| image:: https://img.shields.io/pypi/v/habito.svg
    :target: https://pypi.python.org/pypi/habito
+
