@@ -1,0 +1,12 @@
+site_name: Habito
+
+pages:
+  - Overview: 'index.md'
+  - Commands: 'commands.md'
+  - License: 'license.md'
+
+theme:
+  name: "material"
+  palette:
+    primary: 'light blue'
+    accent: 'deep orange'
