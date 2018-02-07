@@ -62,7 +62,7 @@ class HabitoTests(HabitoTestCase):
         for terminal_width in range(0, 101, 5):
             nr_of_dates = terminal_width//10 - 4
             habito.TERMINAL_WIDTH = terminal_width 
-            result = self._run_command(habito.list)
+            result = self._run_command(habito.list, ["-l"])
             if nr_of_dates < 1:
                 expect("terminal window is too small").to.be.within(result.output)
                 expect(result.exit_code).to.be(1)
@@ -78,22 +78,22 @@ class HabitoTests(HabitoTestCase):
         self.add_summary(habit)
         self._run_command(habito.checkin, ["Habit", "-q -9.1"])
 
-        result = self._run_command(habito.list)
+        result = self._run_command(habito.list, ["-l"])
 
         # Habit is off track with quanta <= goal. Verify 'x'
         expect(habit.name).to.be.within(result.output)
-        expect(u"\u2717 (-9.1)").to.be.within(result.output)
+        expect(u"-9.1").to.be.within(result.output)
 
     def test_habito_list_lists_on_track_habits(self):
         habit = self.create_habit()
         self.add_summary(habit)
         self._run_command(habito.checkin, ["Habit", "-q 9.1"])
 
-        result = self._run_command(habito.list)
+        result = self._run_command(habito.list, ["-l"])
 
         # Habit is on track with quanta >= goal. Verify 'tick'
         expect(habit.name).to.be.within(result.output)
-        expect(u"\u2713 (9.1)").to.be.within(result.output)
+        expect(u"9.1").to.be.within(result.output)
 
     def test_habito_list_should_show_streak(self):
         habit = self.create_habit()
@@ -154,7 +154,7 @@ class HabitoTests(HabitoTestCase):
             checkin_result = self._run_command(habito.checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"])
             expect("for date: {}".format(date_str)).to.be.within(checkin_result.output)
             expect("35.0 dummy_units").to.be.within(checkin_result.output)
-        list_result = self._run_command(habito.list)
+        list_result = self._run_command(habito.list, ["-l"])
         expect(list_result.output.count("35")).to.greater_than(3)
 
     def test_habito_checkin_should_update_past_year(self):

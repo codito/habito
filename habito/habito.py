@@ -13,6 +13,9 @@ logger = logging.getLogger("habito")
 database_name = path.join(click.get_app_dir("habito"), "habito.db")
 TERMINAL_WIDTH, TERMINAL_HEIGHT = click.get_terminal_size()
 
+TICK = u"\u25A0"    # tick - 2713, black square - 25A0, 25AA, 25AF
+CROSS = u"\u25A1"   # cross - 2717, white square - 25A1, 25AB, 25AE
+
 
 @click.group()
 def cli():
@@ -23,7 +26,8 @@ def cli():
 
 
 @cli.command()
-def list():
+@click.option("--long-list", "-l", is_flag=True, help="Units of data.")
+def list(long_list):
     """List all tracked habits."""
     from terminaltables import SingleTable
     from textwrap import wrap
@@ -36,22 +40,31 @@ def list():
         raise SystemExit(1)
 
     table_title = ["Habit", "Goal", "Streak"]
-    for d in range(0, nr_of_dates):
-        date_mod = datetime.today() - timedelta(days=d)
-        table_title.append("{0}/{1}".format(date_mod.month, date_mod.day))
+    minimal = not long_list
+    if minimal:
+        table_title.append("Activities")
+    else:
+        for d in range(0, nr_of_dates):
+            date_mod = datetime.today() - timedelta(days=d)
+            table_title.append("{0}/{1}".format(date_mod.month, date_mod.day))
 
     table_rows = [table_title]
     for habit_data in models.get_daily_activities(nr_of_dates):
         habit = habit_data[0]
         habit_row = [str(habit.id) + ": " + habit.name, str(habit.quantum)]
+        progress = ""
         for daily_data in habit_data[1]:
-            column_text = u'\u2717'
-            date_mod = datetime.today() - timedelta(days=daily_data[0])
+            column_text = CROSS
             quanta = daily_data[1]
 
             if quanta is not None and quanta >= habit.quantum:
-                column_text = u'\u2713'
-            habit_row.append("{0} ({1})".format(column_text, quanta))
+                column_text = click.style(TICK, fg="green")
+            if minimal:
+                progress += column_text + " "
+            else:
+                habit_row.append(quanta)
+        if minimal:
+            habit_row.append(progress)
 
         current_streak = habit.summary.get().get_streak()
         habit_row.insert(2, current_streak)
