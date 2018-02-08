@@ -16,7 +16,7 @@ AUTHOR = "Arun Mahapatra"
 # VERSION = (1, 0, a2)
 
 # Dependencies required for execution
-REQUIRED = ["click", "peewee", "terminaltables"]
+REQUIRED = ["click", "peewee>=3.0.13", "terminaltables"]
 
 here = path.abspath(path.dirname(__file__))
 
