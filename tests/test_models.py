@@ -25,7 +25,7 @@ class ModelTests(HabitoTestCase):
 
         ha = models.get_activities(1)
 
-        expect(ha[0].activities_prefetch).to.empty
+        expect(ha[0].activities).to.empty
 
     def test_get_activities_should_return_activities_within_days(self):
         habit = self.create_habit()
@@ -34,8 +34,8 @@ class ModelTests(HabitoTestCase):
 
         h = models.get_activities(1)
 
-        expect(h[0].activities_prefetch).to.have.length_of(1)
-        expect(h[0].activities_prefetch[0].quantum).to.equal(20.0)
+        expect(h[0].activities).to.have.length_of(1)
+        expect(h[0].activities[0].quantum).to.equal(20.0)
 
     def test_get_activities_should_return_activities_sorted(self):
         habit = self.create_habit()
@@ -45,7 +45,7 @@ class ModelTests(HabitoTestCase):
 
         h = models.get_activities(3)
 
-        expect(h[0].activities_prefetch).to.equal([a1, a3, a2])
+        expect(h[0].activities).to.equal([a1, a3, a2])
 
     def test_get_daily_activities_should_return_activities_groups(self):
         habit = self.create_habit()
@@ -77,7 +77,7 @@ class ModelTests(HabitoTestCase):
 
 class MigrationTests(HabitoTestCase):
     def setUp(self):
-        models.db.init(":memory:")
+        models.db.init(":memory:", pragmas=(('foreign_keys', 'on'),))
         models.db.connect()
 
         self.migration = models.Migration(models.db)
@@ -182,11 +182,11 @@ class MigrationTests(HabitoTestCase):
 
         Config table exists, but version key is not present.
         """
-        models.db.create_table(models.Config)
+        models.db.create_tables([models.Config])
 
     def _setup_db_exist_config_version(self):
         """DB version 2 setup."""
-        models.db.create_table(models.Config)
+        models.db.create_tables([models.Config])
         models.Config.create(name="version", value="2")
 
     # Validations for DB states

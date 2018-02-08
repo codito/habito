@@ -5,16 +5,17 @@ import logging
 from datetime import datetime, timedelta
 from peewee import *    # noqa
 from playhouse import reflection
+from playhouse.sqlite_ext import SqliteExtDatabase
 from playhouse.migrate import SqliteMigrator, migrate
 
 DB_VERSION = 2
-db = SqliteDatabase(None, pragmas=(('foreign_keys', 'on'),))
+db = SqliteExtDatabase(None, regexp_function=True)
 logger = logging.getLogger("habito.models")
 
 
 def setup(name):
     """Set up the database."""
-    db.init(name)
+    db.init(name, pragmas=(('foreign_keys', 'on'),))
     db.connect()
     Migration(db).execute()
 
@@ -61,7 +62,7 @@ def get_daily_activities(days):
         habit_data = []
 
         activity_index = 0
-        activities = habit.activities_prefetch
+        activities = habit.activities
         for day in range(0, days):
             quanta = 0.0
             if activity_index < len(activities):
@@ -340,14 +341,14 @@ class Migration:
         logger.debug("Migration #1: Created tables.")
 
         # Set DB version
-        Config.insert(name="version", value="1").upsert().execute()
+        Config.insert(name="version", value="1").on_conflict("replace").execute()
         logger.debug("Migration #1: DB version updated to 1.")
 
         # Update summaries
         for h in Habit.select():
             activities = Activity.select()\
                                  .where(Activity.for_habit == h)\
-                                 .order_by(Activity.update_date).asc()
+                                 .order_by(Activity.update_date.asc())
             streak = 0
             if len(activities) != 0:
                 last_date = activities[0].update_date
@@ -372,6 +373,6 @@ class Migration:
         This is a dummy migration step.
         """
         # Set DB version
-        Config.insert(name="version", value="2").upsert().execute()
+        Config.insert(name="version", value="2").on_conflict("replace").execute()
         logger.debug("Migration #2: DB version updated to 2.")
         return 0

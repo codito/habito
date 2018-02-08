@@ -26,7 +26,7 @@ def cli():
 
 
 @cli.command()
-@click.option("--long-list", "-l", is_flag=True, help="Units of data.")
+@click.option("--long-list", "-l", is_flag=True, help="Show date and quantum.")
 def list(long_list):
     """List all tracked habits."""
     from terminaltables import SingleTable
