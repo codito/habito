@@ -9,13 +9,14 @@ from playhouse.sqlite_ext import SqliteExtDatabase
 from playhouse.migrate import SqliteMigrator, migrate
 
 DB_VERSION = 2
-db = SqliteExtDatabase(None, regexp_function=True)
+db = SqliteExtDatabase(None, pragmas=(('foreign_keys', 'on'),),
+                       regexp_function=True)
 logger = logging.getLogger("habito.models")
 
 
 def setup(name):
     """Set up the database."""
-    db.init(name, pragmas=(('foreign_keys', 'on'),))
+    db.init(name)
     db.connect()
     Migration(db).execute()
 

@@ -77,7 +77,7 @@ class ModelTests(HabitoTestCase):
 
 class MigrationTests(HabitoTestCase):
     def setUp(self):
-        models.db.init(":memory:", pragmas=(('foreign_keys', 'on'),))
+        models.db.init(":memory:")
         models.db.connect()
 
         self.migration = models.Migration(models.db)
