@@ -197,6 +197,7 @@ class Summary(BaseModel):
         Args:
             habit (Habit): Habit to update.
         """
+        # Check-in now supports past updates for upto 365 days
         last_two_activity = Activity.select()\
             .where(Activity.for_habit == habit)\
             .order_by(Activity.update_date.desc())\

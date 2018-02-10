@@ -115,7 +115,13 @@ class HabitoTests(HabitoTestCase):
                 ["dummy habit", "-q 9.1"])
 
         expect(result.exit_code).to.be(0)
-        expect(result.output.startswith("No tracked habits match the")).to.true
+        expect(result.output.startswith("No habit matched the")).to.true
+
+    def test_habito_checkin_should_show_error_if_name_is_empty(self):
+        result = self._run_command(habito.checkin)
+
+        assert result.exit_code == 0
+        assert result.output.startswith("No habit specified")
 
     def test_habito_checkin_should_show_error_if_multiple_habits_match(self):
         dummy_date = date(1201, 10, 12)
@@ -129,7 +135,7 @@ class HabitoTests(HabitoTestCase):
                                    ["Habit", "-q 9.1"])
 
         expect(result.exit_code).to.be(0)
-        expect(result.output.startswith("More than one tracked habits match the")).to.true
+        expect(result.output.startswith("More than one habits matched the")).to.true
 
     def test_habito_checkin_should_add_data_for_a_habit(self):
         habit = self.create_habit()
@@ -152,7 +158,8 @@ class HabitoTests(HabitoTestCase):
             d = datetime.now() - timedelta(days=i)
             date_str = "{d.month}/{d.day}".format(d=d).strip()
             checkin_result = self._run_command(habito.checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"])
-            expect("for date: {}".format(date_str)).to.be.within(checkin_result.output)
+
+            self._verify_checkin_date(date_str, d.year, checkin_result.output)
             expect("35.0 dummy_units").to.be.within(checkin_result.output)
         list_result = self._run_command(habito.list, ["-l"])
         expect(list_result.output.count("35")).to.greater_than(3)
@@ -168,7 +175,7 @@ class HabitoTests(HabitoTestCase):
         a = models.Activity.select()\
             .where(models.Activity.update_date.year == d.year-1).get()
         expect(a.quantum).to.eql(35.0)
-        expect("for date: {}".format(date_str)).to.be.within(checkin_result.output)
+        self._verify_checkin_date(date_str, d.year-1, checkin_result.output)
         expect("35.0 dummy_units").to.be.within(checkin_result.output)
 
     def test_habito_checkin_can_add_multiple_data_points_on_same_day(self):
@@ -208,6 +215,29 @@ class HabitoTests(HabitoTestCase):
         self._run_command(habito.checkin, ["Habit", "-q 9.1"])
 
         expect(models.Summary.get().streak).to.equal(3)
+
+    def test_habito_checkin_review_mode_iterates_all_habits(self):
+        habit_one = self.create_habit()
+        habit_two = self.create_habit(name="HabitTwo", quantum=2)
+        self.add_summary(habit_one)
+        self.add_summary(habit_two)
+
+        result = self._run_command_with_stdin(habito.checkin, ["--review"], "1.0\n2.0")
+
+        activities = list(models.Activity.select())
+        assert result.exit_code == 0
+        assert len(activities) == 2
+        assert activities[0].quantum == 1.0
+        assert activities[1].quantum == 2.0
+
+    def test_habito_checkin_review_mode_updates_default(self):
+        habit = self.create_habit()
+        self.add_summary(habit)
+
+        result = self._run_command_with_stdin(habito.checkin, ["-r"], "\n")
+
+        assert result.exit_code == 0
+        assert models.Activity.select().count() == 1
 
     def test_edit(self):
         habit = self.create_habit()
@@ -264,6 +294,10 @@ class HabitoTests(HabitoTestCase):
 
         expect(habito.models.Activity.select().count()).to.equal(1)
     
+    def _verify_checkin_date(self, date_str, year, output):
+        date = datetime.strptime(date_str, "%m/%d").replace(year=year).strftime("%c")
+        assert date in output
+
     def _run_command(self, command, args=[]):
         return self._run_command_with_stdin(command, args, stdin=None)
 
