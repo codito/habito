@@ -226,7 +226,7 @@ class HabitTests(HabitoTestCase):
         assert habit.units == "dummy_units"
         assert habit.magica == "magica"
         assert habit.frequency == 1
-        assert habit.active == True
+        assert habit.active is True
 
     def test_habit_add_creates_a_summary_for_habit(self):
         habit = models.Habit.add(name="Dummy Habit",
