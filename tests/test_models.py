@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Tests for habito models."""
 
+import pytest
 from datetime import datetime
-from sure import expect
 
 import habito.models as models
 from tests import HabitoTestCase
@@ -13,19 +13,18 @@ class ModelTests(HabitoTestCase):
         models.setup(":memory:")
 
     def test_setup_creates_tables(self):
-        expect(len(models.db.get_tables())).to.be(4)
+        assert len(models.db.get_tables()) == 4
 
     def test_get_activities_raises_for_invalid_days(self):
-        ga = models.get_activities
-
-        expect(ga).when.called_with(-1).to.throw(ValueError)
+        with pytest.raises(ValueError):
+            models.get_activities(-1)
 
     def test_get_activities_should_return_empty_for_no_activities(self):
         self.create_habit()
 
         ha = models.get_activities(1)
 
-        expect(ha[0].activities).to.empty
+        assert len(ha[0].activities) == 0
 
     def test_get_activities_should_return_activities_within_days(self):
         habit = self.create_habit()
@@ -34,8 +33,8 @@ class ModelTests(HabitoTestCase):
 
         h = models.get_activities(1)
 
-        expect(h[0].activities).to.have.length_of(1)
-        expect(h[0].activities[0].quantum).to.equal(20.0)
+        assert len(h[0].activities) == 1
+        assert h[0].activities[0].quantum == 20.0
 
     def test_get_activities_should_return_activities_sorted(self):
         habit = self.create_habit()
@@ -45,7 +44,7 @@ class ModelTests(HabitoTestCase):
 
         h = models.get_activities(3)
 
-        expect(h[0].activities).to.equal([a1, a3, a2])
+        assert h[0].activities == [a1, a3, a2]
 
     def test_get_daily_activities_should_return_activities_groups(self):
         habit = self.create_habit()
@@ -55,9 +54,9 @@ class ModelTests(HabitoTestCase):
 
         h = models.get_daily_activities(2)
 
-        expect(h).to.have.length_of(1)
-        expect(h[0][0]).to.equal(habit)
-        expect(h[0][1]).to.equal([(0, None), (1, 30.0)])
+        assert len(h) == 1
+        assert h[0][0] == habit
+        assert h[0][1] == [(0, None), (1, 30.0)]
 
     def test_get_daily_activities_should_return_all_habits_activity(self):
         habit1 = self.create_habit()
@@ -68,11 +67,11 @@ class ModelTests(HabitoTestCase):
 
         h = models.get_daily_activities(3)
 
-        expect(h).to.have.length_of(2)
-        expect(h[0][0]).to.equal(habit1)
-        expect(h[1][0]).to.equal(habit2)
-        expect(h[0][1]).to.equal([(0, None), (1, 20.0), (2, 1.0)])
-        expect(h[1][1]).to.equal([(0, None), (1, 10.0), (2, None)])
+        assert len(h) == 2
+        assert h[0][0] == habit1
+        assert h[1][0] == habit2
+        assert h[0][1] == [(0, None), (1, 20.0), (2, 1.0)]
+        assert h[1][1] == [(0, None), (1, 10.0), (2, None)]
 
 
 class MigrationTests(HabitoTestCase):
@@ -86,45 +85,45 @@ class MigrationTests(HabitoTestCase):
     def test_get_version_returns_zero_if_db_doesnot_exist(self):
         version = self.migration.get_version()
 
-        expect(version).to.eql(0)
+        assert version == 0
 
     def test_get_version_returns_one_if_other_tables_exist(self):
         self._setup_db_exist_no_config()
 
         version = self.migration.get_version()
 
-        expect(version).to.eql(1)
+        assert version == 1
 
     def test_get_version_returns_one_if_key_doesnot_exist(self):
         self._setup_db_exist_config_version_doesnot_exist()
 
         version = self.migration.get_version()
 
-        expect(version).to.eql(1)
+        assert version == 1
 
     def test_get_version_returns_version_if_config_exists(self):
         self._setup_db_exist_config_version()
 
         version = self.migration.get_version()
 
-        expect(version).to.eql(2)
+        assert version == 2
 
     # Migration scenario: DB doesn't exist
     def test_execute_list_result_db_doesnot_exist(self):
         result = self.migration.execute(list_only=True)
 
-        expect(result).to.eql({0: -1})
+        assert result == {0: -1}
 
     def test_execute_run_result_db_doesnot_exist(self):
         ver = str(models.DB_VERSION)
 
         result = self.migration.execute()
 
-        expect(result).to.eql({0: 0})
-        expect(models.Config.get(models.Config.name == "version").value).to.eql(ver)
-        expect(models.Habit.select().count()).to.eql(0)
-        expect(models.Activity.select().count()).to.eql(0)
-        expect(models.Summary.select().count()).to.eql(0)
+        assert result == {0: 0}
+        assert models.Config.get(models.Config.name == "version").value == ver
+        assert models.Habit.select().count() == 0
+        assert models.Activity.select().count() == 0
+        assert models.Summary.select().count() == 0
 
     # Migration scenario: DB is at version 1
     def test_execute_list_result_db_exist_without_config(self):
@@ -132,14 +131,14 @@ class MigrationTests(HabitoTestCase):
 
         result = self.migration.execute(list_only=True)
 
-        expect(result).to.eql({1: -1, 2: -1})
+        assert result == {1: -1, 2: -1}
 
     def test_execute_run_result_db_exist_without_config(self):
         self._setup_db_exist_no_config()
 
         result = self.migration.execute()
 
-        expect(result).to.eql({1: 0, 2: 0})
+        assert result == {1: 0, 2: 0}
         self._verify_row_counts_for_version_2()
         self._verify_summary_for_version_2()
 
@@ -150,7 +149,7 @@ class MigrationTests(HabitoTestCase):
 
         result = self.migration.execute()
 
-        expect(result).to.eql({1: 0, 2: 0})
+        assert result == {1: 0, 2: 0}
         self._verify_row_counts_for_version_2()
         self._verify_summary_for_version_2()
 
@@ -160,14 +159,14 @@ class MigrationTests(HabitoTestCase):
 
         result = self.migration.execute(list_only=True)
 
-        expect(result).to.eql({})
+        assert result == {}
 
     def test_execute_run_result_db_exist_with_config(self):
         self._setup_db_exist_config_version()
 
         result = self.migration.execute()
 
-        expect(result).to.eql({})
+        assert result == {}
 
     # Fixtures for DB states
     def _setup_db_exist_no_config(self):
@@ -193,16 +192,16 @@ class MigrationTests(HabitoTestCase):
     def _verify_row_counts_for_version_2(self):
         ver = str(models.DB_VERSION)
 
-        expect(models.Config.get(models.Config.name == "version").value).to.eql(ver)
-        expect(models.Habit.select().count()).to.eql(2)
-        expect(models.Activity.select().count()).to.eql(4)
-        expect(models.Summary.select().count()).to.eql(2)
+        assert models.Config.get(models.Config.name == "version").value == ver
+        assert models.Habit.select().count() == 2
+        assert models.Activity.select().count() == 4
+        assert models.Summary.select().count() == 2
 
     def _verify_summary_for_version_2(self):
         s1 = models.Summary.get(models.Summary.id == 1).streak
         s2 = models.Summary.get(models.Summary.id == 2).streak
-        expect(s1).to.eql(2)
-        expect(s2).to.eql(1)
+        assert s1 == 2
+        assert s2 == 1
 
 
 class HabitTests(HabitoTestCase):
@@ -221,13 +220,13 @@ class HabitTests(HabitoTestCase):
                                  units="dummy_units",
                                  magica="magica")
 
-        expect(habit.name).to.equal("Dummy Habit")
-        expect(habit.created_date).to.equal(dummy_date)
-        expect(habit.quantum).to.equal(1)
-        expect(habit.units).to.equal("dummy_units")
-        expect(habit.magica).to.equal("magica")
-        expect(habit.frequency).to.equal(1)
-        expect(habit.active).to.true
+        assert habit.name == "Dummy Habit"
+        assert habit.created_date == dummy_date
+        assert habit.quantum == 1
+        assert habit.units == "dummy_units"
+        assert habit.magica == "magica"
+        assert habit.frequency == 1
+        assert habit.active == True
 
     def test_habit_add_creates_a_summary_for_habit(self):
         habit = models.Habit.add(name="Dummy Habit",
@@ -236,7 +235,7 @@ class HabitTests(HabitoTestCase):
                                  magica="magica")
 
         summary = models.Summary.get(for_habit=habit)
-        expect(summary.streak).to.equal(0)
+        assert summary.streak == 0
 
 
 class SummaryTests(HabitoTestCase):
@@ -253,7 +252,7 @@ class SummaryTests(HabitoTestCase):
 
         summary = models.Summary.update_streak(habit)
 
-        expect(summary.streak).to.equal(0)
+        assert summary.streak == 0
 
     def test_update_streak_doesnot_set_streak_if_last_activity_yesterday(self):
         habit = self.create_habit()
@@ -262,7 +261,7 @@ class SummaryTests(HabitoTestCase):
 
         summary = models.Summary.update_streak(habit)
 
-        expect(summary.streak).to.equal(2)
+        assert summary.streak == 2
 
     def test_update_streak_sets_streak_as_one_if_only_activity_was_today(self):
         habit = self.create_habit()
@@ -271,7 +270,7 @@ class SummaryTests(HabitoTestCase):
 
         summary = models.Summary.update_streak(habit)
 
-        expect(summary.streak).to.equal(1)
+        assert summary.streak == 1
 
     def test_update_streak_doesnot_set_streak_if_more_activities_today(self):
         habit = self.create_habit()
@@ -282,7 +281,7 @@ class SummaryTests(HabitoTestCase):
 
         summary = models.Summary.update_streak(habit)
 
-        expect(summary.streak).to.equal(2)
+        assert summary.streak == 2
 
     def test_update_streak_increments_streak_for_regular_activity(self):
         habit = self.create_habit()
@@ -293,7 +292,7 @@ class SummaryTests(HabitoTestCase):
 
         summary = models.Summary.update_streak(habit)
 
-        expect(summary.streak).to.equal(11)
+        assert summary.streak == 11
 
     def test_update_streak_sets_streak_as_one_for_irregular_activity(self):
         habit = self.create_habit()
@@ -303,7 +302,7 @@ class SummaryTests(HabitoTestCase):
 
         summary = models.Summary.update_streak(habit)
 
-        expect(summary.streak).to.equal(1)
+        assert summary.streak == 1
 
     def test_update_streak_sets_streak_as_zero_for_irregular_activity(self):
         habit = self.create_habit()
@@ -313,7 +312,7 @@ class SummaryTests(HabitoTestCase):
 
         summary = models.Summary.update_streak(habit)
 
-        expect(summary.streak).to.equal(0)
+        assert summary.streak == 0
 
     def test_get_streak_should_add_days_for_zero_streak(self):
         habit = self.create_habit()
@@ -321,7 +320,7 @@ class SummaryTests(HabitoTestCase):
 
         streak = habit.summary.get().get_streak()
 
-        expect(streak).to.equal("0 days")
+        assert streak == "0 days"
 
     def test_get_streak_should_add_days_for_plural_streak(self):
         habit = self.create_habit()
@@ -329,7 +328,7 @@ class SummaryTests(HabitoTestCase):
 
         streak = habit.summary.get().get_streak()
 
-        expect(streak).to.equal("20 days")
+        assert streak == "20 days"
 
     def test_get_streak_should_add_days_for_one_streak(self):
         habit = self.create_habit()
@@ -337,4 +336,4 @@ class SummaryTests(HabitoTestCase):
 
         streak = habit.summary.get().get_streak()
 
-        expect(streak).to.equal("1 day")
+        assert streak == "1 day"

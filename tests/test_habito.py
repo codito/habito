@@ -5,7 +5,6 @@ from datetime import datetime, date, timedelta
 from unittest import TestCase
 from unittest.mock import patch
 from click.testing import CliRunner
-from sure import expect
 
 from habito import habito, models
 from tests import HabitoTestCase
@@ -38,7 +37,7 @@ class HabitoTests(HabitoTestCase):
                     'edit': habito.edit,
                     'delete': habito.delete}
 
-        expect(result.commands).to.equal(commands)
+        assert result.commands == commands
 
     @patch("habito.habito.click.get_app_dir")
     @patch("habito.habito.mkdir")
@@ -46,7 +45,7 @@ class HabitoTests(HabitoTestCase):
     def test_habito_cli_sets_up_database(self, models_setup, mkdir, click):
         result = self._run_command(habito.cli, ["add"])
 
-        expect(models_setup.called).to.true
+        assert models_setup.called
 
     @patch("habito.habito.click.get_app_dir")
     @patch("habito.habito.mkdir")
@@ -55,8 +54,8 @@ class HabitoTests(HabitoTestCase):
             path_exists.return_value = False
             result = self._run_command(habito.cli, ["add"])
 
-            expect(click_mock.called).to.true
-            expect(mkdir_mock.called).to.true
+            assert click_mock.called
+            assert mkdir_mock.called
    
     def test_habito_list_table_adapts_to_terminal_width(self):
         for terminal_width in range(0, 101, 5):
@@ -64,13 +63,13 @@ class HabitoTests(HabitoTestCase):
             habito.TERMINAL_WIDTH = terminal_width 
             result = self._run_command(habito.list, ["-l"])
             if nr_of_dates < 1:
-                expect("terminal window is too small").to.be.within(result.output)
-                expect(result.exit_code).to.be(1)
+                assert "terminal window is too small" in result.output
+                assert result.exit_code == 1
             else:
-                expect(result.exit_code).to.be(0)
+                assert result.exit_code == 0
                 for i in range(nr_of_dates):
                     date_string = "{dt.month}/{dt.day}".format(dt=(datetime.now() - timedelta(days=i)))
-                    expect(date_string).to.be.within(result.output)
+                    assert date_string in result.output
         habito.TERMINAL_WIDTH = 80
 
     def test_habito_list_lists_off_track_habits(self):
@@ -81,8 +80,8 @@ class HabitoTests(HabitoTestCase):
         result = self._run_command(habito.list, ["-l"])
 
         # Habit is off track with quanta <= goal. Verify 'x'
-        expect(habit.name).to.be.within(result.output)
-        expect(u"-9.1").to.be.within(result.output)
+        assert habit.name in result.output
+        assert u"-9.1" in result.output
 
     def test_habito_list_lists_on_track_habits(self):
         habit = self.create_habit()
@@ -92,8 +91,8 @@ class HabitoTests(HabitoTestCase):
         result = self._run_command(habito.list, ["-l"])
 
         # Habit is on track with quanta >= goal. Verify 'tick'
-        expect(habit.name).to.be.within(result.output)
-        expect(u"9.1").to.be.within(result.output)
+        assert habit.name in result.output
+        assert u"9.1" in result.output
 
     def test_habito_list_should_show_streak(self):
         habit = self.create_habit()
@@ -101,21 +100,21 @@ class HabitoTests(HabitoTestCase):
 
         result = self._run_command(habito.list)
 
-        expect("10 days").to.be.within(result.output)
+        assert "10 days" in result.output
 
     def test_habito_add_should_add_a_habit(self):
         result = self._run_command(habito.add,
                 ["dummy habit", "10.01"])
 
-        expect(models.Habit.get().name).to.eql("dummy habit")
-        expect(models.Summary.get().streak).to.be(0)
+        assert models.Habit.get().name == "dummy habit"
+        assert models.Summary.get().streak == 0
 
     def test_habito_checkin_should_show_error_if_no_habit_exists(self):
         result = self._run_command(habito.checkin,
                 ["dummy habit", "-q 9.1"])
 
-        expect(result.exit_code).to.be(0)
-        expect(result.output.startswith("No habit matched the")).to.true
+        assert result.exit_code == 0
+        assert result.output.startswith("No habit matched the")
 
     def test_habito_checkin_should_show_error_if_name_is_empty(self):
         result = self._run_command(habito.checkin)
@@ -134,8 +133,8 @@ class HabitoTests(HabitoTestCase):
         result = self._run_command(habito.checkin,
                                    ["Habit", "-q 9.1"])
 
-        expect(result.exit_code).to.be(0)
-        expect(result.output.startswith("More than one habits matched the")).to.true
+        assert result.exit_code == 0
+        assert result.output.startswith("More than one habits matched the")
 
     def test_habito_checkin_should_add_data_for_a_habit(self):
         habit = self.create_habit()
@@ -147,9 +146,9 @@ class HabitoTests(HabitoTestCase):
         activity_entry = models.Activity\
             .get(models.Activity.for_habit == habit)
 
-        expect(result.output.find(result_units)).to.not_be(-1)
-        expect(result.output.find(habit.name)).to.not_be(-1)
-        expect(activity_entry.quantum).to.eql(9.1)
+        assert result.output.find(result_units) != -1
+        assert result.output.find(habit.name) != -1
+        assert activity_entry.quantum == 9.1
 
     def test_habito_checkin_should_update_past_date(self):
         habit = self.create_habit()
@@ -160,9 +159,9 @@ class HabitoTests(HabitoTestCase):
             checkin_result = self._run_command(habito.checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"])
 
             self._verify_checkin_date(date_str, d.year, checkin_result.output)
-            expect("35.0 dummy_units").to.be.within(checkin_result.output)
+            assert "35.0 dummy_units" in checkin_result.output
         list_result = self._run_command(habito.list, ["-l"])
-        expect(list_result.output.count("35")).to.greater_than(3)
+        assert list_result.output.count("35") > 3
 
     def test_habito_checkin_should_update_past_year(self):
         habit = self.create_habit()
@@ -174,9 +173,9 @@ class HabitoTests(HabitoTestCase):
 
         a = models.Activity.select()\
             .where(models.Activity.update_date.year == d.year-1).get()
-        expect(a.quantum).to.eql(35.0)
+        assert a.quantum == 35.0
         self._verify_checkin_date(date_str, d.year-1, checkin_result.output)
-        expect("35.0 dummy_units").to.be.within(checkin_result.output)
+        assert "35.0 dummy_units" in checkin_result.output
 
     def test_habito_checkin_can_add_multiple_data_points_on_same_day(self):
         habit = self.create_habit()
@@ -190,11 +189,11 @@ class HabitoTests(HabitoTestCase):
         activity_entry = models.Activity\
             .select().where(models.Activity.for_habit == habit)
 
-        expect(result.output.find(result_units_two)).to.not_be(-1)
-        expect(result.output.find(habit.name)).to.not_be(-1)
-        expect(activity_entry.count()).to.be(2)
-        expect(activity_entry[0].quantum).to.eql(9.1)
-        expect(activity_entry[1].quantum).to.eql(10.0001)
+        assert result.output.find(result_units_two) != -1
+        assert result.output.find(habit.name) != -1
+        assert activity_entry.count() == 2
+        assert activity_entry[0].quantum == 9.1
+        assert activity_entry[1].quantum == 10.0001
 
     def test_habito_checkin_asks_user_input_if_quantum_is_not_provided(self):
         habit = self.create_habit()
@@ -205,8 +204,8 @@ class HabitoTests(HabitoTestCase):
         # a value is provided
         result = self._run_command_with_stdin(habito.checkin, ["Habit"], "\n9.1")
 
-        expect(result.exit_code).to.be(0)
-        expect(result.output.find(result_units_one)).to.not_be(-1)
+        assert result.exit_code == 0
+        assert result.output.find(result_units_one) != -1
 
     def test_habito_checkin_increments_streak_for_a_habit(self):
         habit = self.create_habit()
@@ -216,7 +215,7 @@ class HabitoTests(HabitoTestCase):
 
         self._run_command(habito.checkin, ["Habit", "-q 9.1"])
 
-        expect(models.Summary.get().streak).to.equal(3)
+        assert models.Summary.get().streak == 3
 
     def test_habito_checkin_review_mode_iterates_all_habits(self):
         habit_one = self.create_habit()
@@ -247,18 +246,17 @@ class HabitoTests(HabitoTestCase):
 
         edit_result = self._run_command(habito.edit, [str(habit.id), "-n EHabit"])
 
-        edit_result.output.should.equal("Habit with id 1 has been saved with"
-                                        " name: EHabit and quantum: 0.0\n")
+        assert edit_result.output == ("Habit with id 1 has been saved with"
+                                      " name: EHabit and quantum: 0.0\n")
         list_result = self._run_command(habito.list)
-        expect("EHabit").to.be.within(list_result.output)
-        expect(habit.name).to_not.be.within(list_result.output)
+        assert "EHabit" in list_result.output
+        assert habit.name not in list_result.output
 
     def test_non_existing_edit(self):
         edit_result = self._run_command(habito.edit, [str(10), "-n test"])
 
-        edit_result.output.should.equal("The habit you're trying to edit does not exist!\n")
-
-        expect(edit_result.exit_code).to.be(1)
+        assert edit_result.output == "The habit you're trying to edit does not exist!\n"
+        assert edit_result.exit_code == 1
 
     def test_delete(self):
         habit = self.create_habit()
@@ -268,9 +266,9 @@ class HabitoTests(HabitoTestCase):
 
         msg = "Are you sure you want to delete habit 1: {} (this cannot be"\
               " undone!)".format(habit.name)
-        expect(msg).to.be.within(delete_result.output)
-        expect("{0}: {1} has been deleted!".format(habit.id, habit.name)).to.be.within(delete_result.output)
-        expect(habito.models.Habit.select().count()).to.equal(0)
+        assert msg in delete_result.output
+        assert "{0}: {1} has been deleted!".format(habit.id, habit.name) in delete_result.output
+        assert habito.models.Habit.select().count() == 0
 
     def test_delete_should_not_delete_for_no_confirm(self):
         habit = self.create_habit()
@@ -280,13 +278,13 @@ class HabitoTests(HabitoTestCase):
 
         msg = "Are you sure you want to delete habit 1: {} (this cannot be"\
               " undone!)".format(habit.name)
-        expect(msg).to.be.within(delete_result.output)
-        expect(habito.models.Habit.select().count()).to.equal(1)
+        assert msg in delete_result.output
+        assert habito.models.Habit.select().count() == 1
 
     def test_non_existing_delete(self):
         delete_result = self._run_command(habito.delete, ["20"])
 
-        expect("The habit you want to remove does not seem to exist!").to.be.within(delete_result.output)
+        assert "The habit you want to remove does not seem to exist!" in delete_result.output
 
     def test_delete_with_keep_logs(self):
         habit = self.create_habit()
@@ -294,7 +292,7 @@ class HabitoTests(HabitoTestCase):
 
         delete_result = self._run_command_with_stdin(habito.delete, ["1", "--keeplogs"], "y")
 
-        expect(habito.models.Activity.select().count()).to.equal(1)
+        assert habito.models.Activity.select().count() == 1
     
     def _verify_checkin_date(self, date_str, year, output):
         date = datetime.strptime(date_str, "%m/%d")\
