@@ -201,7 +201,9 @@ class HabitoTests(HabitoTestCase):
         self.add_summary(habit)
         result_units_one = "9.1 dummy_units"
 
-        result = self._run_command_with_stdin(habito.checkin, ["Habit"], "9.1")
+        # Pass \n to stdin to ensure prompt continues to appear until
+        # a value is provided
+        result = self._run_command_with_stdin(habito.checkin, ["Habit"], "\n9.1")
 
         expect(result.exit_code).to.be(0)
         expect(result.output.find(result_units_one)).to.not_be(-1)
@@ -230,14 +232,14 @@ class HabitoTests(HabitoTestCase):
         assert activities[0].quantum == 1.0
         assert activities[1].quantum == 2.0
 
-    def test_habito_checkin_review_mode_updates_default(self):
+    def test_habito_checkin_review_mode_doesnt_update_default(self):
         habit = self.create_habit()
         self.add_summary(habit)
 
         result = self._run_command_with_stdin(habito.checkin, ["-r"], "\n")
 
         assert result.exit_code == 0
-        assert models.Activity.select().count() == 1
+        assert models.Activity.select().count() == 0
 
     def test_edit(self):
         habit = self.create_habit()
