@@ -176,7 +176,7 @@ def checkin(name, review, date, quantum):
     date = date.strip()
     d = datetime.strptime(date, "%m/%d").replace(year=datetime.now().year)
     update_date = d if d < datetime.now() else d.replace(year=d.year-1)
-    update_date_str = update_date.strftime("%c")
+    update_date_str = update_date.strftime("%a %b %d %Y")
 
     def print_header(date_str):
         header = "Please update progress of habits for {0}:"

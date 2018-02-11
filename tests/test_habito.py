@@ -297,7 +297,8 @@ class HabitoTests(HabitoTestCase):
         expect(habito.models.Activity.select().count()).to.equal(1)
     
     def _verify_checkin_date(self, date_str, year, output):
-        date = datetime.strptime(date_str, "%m/%d").replace(year=year).strftime("%c")
+        date = datetime.strptime(date_str, "%m/%d")\
+            .replace(year=year).strftime("%a %b %d %Y")
         assert date in output
 
     def _run_command(self, command, args=[]):
