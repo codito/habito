@@ -27,4 +27,4 @@ build_script:
 
 test_script:
 - cd /D %APPVEYOR_BUILD_FOLDER%
-- pipenv run nosetests
+- pipenv run pytest
