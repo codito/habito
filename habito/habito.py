@@ -183,11 +183,11 @@ def checkin(name, review, date, quantum):
         click.echo(header.format(click.style(date_str, fg='green')))
 
     def get_quantum(habit, required=True):
-        habit_prompt = "  - {0} (Goal: {1})"
+        msg = "  - {0} (Goal: {1} {2})"
 
         # Keep prompting until we have a value if required is True
         value = None if required else float_info.max
-        q = click.prompt(habit_prompt.format(habit.name, habit.quantum),
+        q = click.prompt(msg.format(habit.name, habit.quantum, habit.units),
                          type=float,
                          show_default=False,
                          default=value)
