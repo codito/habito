@@ -198,51 +198,28 @@ class Summary(BaseModel):
             habit (Habit): Habit to update.
         """
         # Check-in now supports past updates for upto 365 days
-        last_two_activity = Activity.select()\
-            .where(Activity.for_habit == habit)\
-            .order_by(Activity.update_date.desc())\
-            .limit(2)
-
+        # TODO need an index on date, this query will scan entire table
         summary = cls.get(for_habit=habit)
+        activities = list((Activity
+                           .select(Activity.update_date,
+                                   fn.SUM(Activity.quantum).alias('total_quantum'))
+                           .where(Activity.for_habit == habit)
+                           .group_by(fn.date(Activity.update_date))
+                           .order_by(Activity.update_date.desc())))
 
-        def is_yesterday_activity(activity):
-            yesterday = (datetime.today() - timedelta(days=1)).date()
-            return activity.update_date.date() == yesterday
+        if len(activities) == 0:
+            return summary
 
-        def is_past_activity(activity):
-            yesterday = (datetime.today() - timedelta(days=1)).date()
-            return activity.update_date.date() < yesterday
-
-        while True:
-            # Streak is 0 if there are no activities
-            if len(last_two_activity) == 0:
-                summary.streak = 0
+        last_update = activities[0].update_date
+        streak = 1
+        for activity in activities[1:]:
+            diff = last_update - activity.update_date
+            if diff.days > 1 or activity.total_quantum < habit.quantum:
                 break
+            last_update = activity.update_date
+            streak += 1
 
-            # Streak is 0 if no activity happened today or yesterday
-            if is_past_activity(last_two_activity[0]):
-                summary.streak = 0
-                break
-
-            # If the last activity was yesterday, there can be an
-            # update today. Keep streak unchanged.
-            if is_yesterday_activity(last_two_activity[0]):
-                break
-
-            # Great, the latest activity was today.
-            if len(last_two_activity) == 1:
-                # Today's activity is the only activity
-                summary.streak = 1
-                break
-
-            # Set streak based on continuity in last two activities
-            if is_yesterday_activity(last_two_activity[1]):
-                summary.streak += 1
-            elif is_past_activity(last_two_activity[1]):
-                # There's no continuity in last two activities
-                summary.streak = 1
-            break
-
+        summary.streak = streak
         summary.save()
         return summary
 
