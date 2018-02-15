@@ -94,6 +94,19 @@ class HabitoTests(HabitoTestCase):
         assert habit.name in result.output
         assert u"9.1" in result.output
 
+    def test_habito_list_skips_inactive_habits(self):
+        habit = self.create_habit()
+        self.add_summary(habit)
+        self._run_command(habito.checkin, ["Habit", "-q 9.1"])
+        habit.active = False
+        habit.save()
+
+        result = self._run_command(habito.list, ["-l"])
+
+        # Habit is on track with quanta >= goal. Verify 'tick'
+        assert habit.name not in result.output
+        assert u"9.1" not in result.output
+
     def test_habito_list_should_show_streak(self):
         habit = self.create_habit()
         self.add_summary(habit, streak=10)
@@ -149,6 +162,20 @@ class HabitoTests(HabitoTestCase):
         assert result.output.find(result_units) != -1
         assert result.output.find(habit.name) != -1
         assert activity_entry.quantum == 9.1
+
+    def test_habito_checkin_should_skip_inactive_habit(self):
+        habit = self.create_habit(active=False)
+        self.add_summary(habit)
+        result_units = "9.1 dummy_units"
+
+        result = self._run_command(habito.checkin,
+                                   ["Habit", "-q 9.1"])
+
+        activity_entry = models.Activity\
+            .select().where(models.Activity.for_habit == habit)
+        assert result.output.find(result_units) == -1
+        assert result.output.find(habit.name) == -1
+        assert activity_entry.count() == 0
 
     def test_habito_checkin_should_update_past_date(self):
         habit = self.create_habit()
@@ -220,8 +247,10 @@ class HabitoTests(HabitoTestCase):
     def test_habito_checkin_review_mode_iterates_all_habits(self):
         habit_one = self.create_habit()
         habit_two = self.create_habit(name="HabitTwo", quantum=2)
+        habit_three = self.create_habit(name="HabitThree", active=False, quantum=2)
         self.add_summary(habit_one)
         self.add_summary(habit_two)
+        self.add_summary(habit_three)
 
         result = self._run_command_with_stdin(habito.checkin, ["--review"], "1.0\n2.0")
 
@@ -258,8 +287,9 @@ class HabitoTests(HabitoTestCase):
         assert edit_result.output == "The habit you're trying to edit does not exist!\n"
         assert edit_result.exit_code == 1
 
-    def test_delete(self):
+    def test_delete_removes_habit_activity(self):
         habit = self.create_habit()
+        self.add_summary(habit)
         self._run_command(habito.checkin, [habit.name, "-q 3"])
 
         delete_result = self._run_command_with_stdin(habito.delete, ["1"], "y")
@@ -272,6 +302,7 @@ class HabitoTests(HabitoTestCase):
 
     def test_delete_should_not_delete_for_no_confirm(self):
         habit = self.create_habit()
+        self.add_summary(habit)
         self._run_command(habito.checkin, [habit.name, "-q 3"])
 
         delete_result = self._run_command_with_stdin(habito.delete, ["1"], "n")
@@ -286,13 +317,15 @@ class HabitoTests(HabitoTestCase):
 
         assert "The habit you want to remove does not seem to exist!" in delete_result.output
 
-    def test_delete_with_keep_logs(self):
+    def test_delete_with_keep_logs_marks_habit_inactive(self):
         habit = self.create_habit()
+        self.add_summary(habit)
         self._run_command(habito.checkin, [habit.name, "-q 3"])
 
         delete_result = self._run_command_with_stdin(habito.delete, ["1", "--keeplogs"], "y")
 
         assert habito.models.Activity.select().count() == 1
+        assert habito.models.Habit.select().where(habito.models.Habit.active).count() == 0
     
     def _verify_checkin_date(self, date_str, year, output):
         date = datetime.strptime(date_str, "%m/%d")\

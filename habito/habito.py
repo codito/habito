@@ -28,8 +28,8 @@ def cli():
 
 
 @cli.command()
-@click.option("--long-list", "-l", is_flag=True, help="Show date and quantum.")
-def list(long_list):
+@click.option("-l", is_flag=True, help="Long listing with date and quantum.")
+def list(l):
     """List all tracked habits."""
     from terminaltables import SingleTable
     from textwrap import wrap
@@ -42,7 +42,7 @@ def list(long_list):
         raise SystemExit(1)
 
     table_title = ["Habit", "Goal", "Streak"]
-    minimal = not long_list
+    minimal = not l
     if minimal:
         table_title.append("Activities")
     else:
@@ -90,12 +90,7 @@ def list(long_list):
 @click.argument("quantum", type=click.FLOAT)
 @click.option("--units", "-u", default="units", help="Units of data.")
 def add(name, quantum, units):
-    """Add a habit.
-
-    Args:
-        name (str): Name of the habit.
-        quantum (float): Quantity of progress every day.
-    """
+    """Add a habit."""
     habit_name = ' '.join(name)
     models.Habit.add(name=habit_name,
                      created_date=datetime.now(),
@@ -115,12 +110,7 @@ def add(name, quantum, units):
 @click.option('--name', '-n', help="The new name (leave empty to leave unchanged)")
 @click.option('--quantum', '-q', help="The new quantum (leave empty to leave unchanged)", type=click.FLOAT)
 def edit(id, name, quantum):
-    """Edit a habit.
-
-    Args:
-        name (str): Name of the habit.
-        quantum (float): Quantity of progress every day.
-    """
+    """Edit a habit."""
     try:
         habit = models.Habit.get(models.Habit.id == id)
     except models.Habit.DoesNotExist:
@@ -137,12 +127,7 @@ def edit(id, name, quantum):
 @click.option("--keeplogs", is_flag=True, default=False,
               help="Preserve activity logs for the habit.")
 def delete(id, keeplogs):
-    """Delete a habit.
-
-    Args:
-        name (str): Name of the habit.
-        quantum (float): Quantity of progress every day.
-    """
+    """Delete a habit."""
     try:
         habit = models.Habit.get(models.Habit.id == id)
     except models.Habit.DoesNotExist:
@@ -154,9 +139,14 @@ def delete(id, keeplogs):
     if confirm:
         click.echo("Habit {}: {} has been deleted!".format(habit.id, habit.name))
         if not keeplogs:
-            ad = models.Activity.delete().where(models.Activity.for_habit == habit.id)
-            ad.execute()
-        habit.delete_instance()
+            models.Activity.delete().where(models.Activity.for_habit ==
+                                           habit.id).execute()
+            models.Summary.delete().where(models.Summary.for_habit ==
+                                          habit.id).execute()
+            habit.delete_instance()
+        else:
+            habit.active = False
+            habit.save()
     else:
         click.echo("Habit {}: {} has not been deleted!".format(habit.id, habit.name))
 
@@ -209,7 +199,7 @@ def checkin(name, review, date, quantum):
     if review:
         print_header(update_date_str)
         click.echo("(Press `enter` if you'd like to skip update for a habit.)")
-        for h in models.Habit.select():
+        for h in models.Habit.all_active():
             q = get_quantum(h, required=False)
             if q is not None:
                 update_activity(h, q, update_date)
@@ -220,7 +210,7 @@ def checkin(name, review, date, quantum):
         click.echo("No habit specified, no progress updated.")
         click.echo("Try 'habito checkin <habit_name>'?")
         return
-    habits = models.Habit.select().where(models.Habit.name.regexp(query))
+    habits = models.Habit.all_active().where(models.Habit.name.regexp(query))
     if habits.count() == 0:
         error = "No habit matched the name '{0}'.".format(query)
         click.secho(error, fg='red')

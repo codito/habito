@@ -35,7 +35,7 @@ def get_activities(days):
         raise ValueError("Days should be a positive integer.")
 
     from_date = datetime.now() - timedelta(days=days)
-    habits = Habit.select()
+    habits = Habit.all_active()
     activities = Activity.select()\
         .where(Activity.update_date > from_date)\
         .order_by(Activity.update_date.desc())
@@ -154,6 +154,16 @@ class Habit(BaseModel):
                        target_date=datetime.now(),
                        streak=0)
         return habit
+
+    @classmethod
+    def all_active(cls):
+        """Add a habit.
+
+        Returns:
+            All active habits.
+
+        """
+        return cls.select().where(Habit.active)
 
 
 class Activity(BaseModel):

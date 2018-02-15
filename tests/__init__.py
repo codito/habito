@@ -14,10 +14,11 @@ class HabitoTestCase(TestCase):
     two_days_ago = datetime.today() - timedelta(days=2)
 
     def create_habit(self, name="HabitOne", created_date=datetime.now(),
-                     quantum=0, magica="be awesome!"):
+                     active=True, quantum=0, magica="be awesome!"):
         habit = models.Habit.create(name=name,
                                     created_date=created_date,
                                     quantum=quantum,
+                                    active=active,
                                     units="dummy_units",
                                     magica=magica)
         return habit
