@@ -16,7 +16,7 @@ TERMINAL_WIDTH, TERMINAL_HEIGHT = click.get_terminal_size()
 
 TICK = u"\u25A0"    # tick - 2713, black square - 25A0, 25AA, 25AF
 CROSS = u"\u25A1"   # cross - 2717, white square - 25A1, 25AB, 25AE
-PARTIAL = u"\u25AA"    # tick - 2713, black square - 25A0, 25AA, 25AF
+PARTIAL = u"\u25A0"    # tick - 2713, black square - 25A0, 25AA, 25AF
 
 
 @click.group()
@@ -98,11 +98,10 @@ def add(name, quantum, units):
                      units=units,
                      magica="")
 
-    click.echo("You have commited to ", nl=False)
-    click.secho("{0} {1}".format(quantum, units), nl=False, fg='green')
-    click.echo(" of ")
-    click.secho("{0}".format(habit_name), fg='green', nl=False)
-    click.echo(" every day!")
+    msg_unit = click.style("{0} {1}".format(quantum, units), fg='green')
+    msg_name = click.style("{0}".format(habit_name), fg='green')
+    click.echo("You have commited to {0} of {1} every day!"
+               .format(msg_unit, msg_name))
 
 
 @cli.command()
