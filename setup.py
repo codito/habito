@@ -64,7 +64,7 @@ class UploadCommand(Command):
 
 setup(
     name=NAME,
-    version="1.0a4",    # FIXME semantic versioning
+    version="1.0a5",    # FIXME semantic versioning
     description=DESCRIPTION,
     long_description=long_description,
     url=URL,
