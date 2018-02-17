@@ -1,8 +1,58 @@
 # Command reference
 
+We learnt day-to-day usage of habito in the [quickstart][habito-quickstart]
+tutorial. Now let's dive deeper into the various command supported by habito.
+
+[habito-quickstart]: index.md#quickstart
+
 ## Add
+Add command (`habito add`) informs habito to track a new habit. A habit has
+three aspects:
+
+- A simple and easy to remember name
+- A metric or unit for measuring the habit. E.g. miles if you're tracking daily
+  runs
+- A daily target for the habit. E.g. 3 miles daily
+
+### Syntax
+```
+Usage: habito add [OPTIONS] [NAME]... QUANTUM
+
+  Add a habit.
+
+Options:
+  -u, --units TEXT  Units of data.
+  --help            Show this message and exit.
+```
+
+- `NAME` is the name to identify a habit
+- `QUANTUM` is the daily target for the habit
+- `--units` specifies the measurement unit for the habit
+
+### Examples
+(1) Add a habit
+
+```sh
+> habito add running 3
+You have commited to 3.0 units of running every day!
+```
+
+(2) Add a habit specifying units
+
+```sh
+> habito add running 3 -u miles
+You have commited to 3.0 miles of running every day!
+```
 
 ## List
+
+Legend:
+
+- <span style="color:green">■</span> indicates we have met the goal for that
+  day!
+- ■ implies some activity on a day, but goal is not met
+- □ implies no activity for the habito on a day
+
 
 ## Checkin
 `checkin` command is used to update progress on the tracked habits.

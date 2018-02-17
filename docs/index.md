@@ -64,8 +64,7 @@ You can add the habit now.
 ```shell
 $ habito add writing 750 -u words
 
-You have commited to 750.0 words of
-writing every day!
+You have commited to 750.0 words of writing every day!
 ```
 
 ### List habits
@@ -75,15 +74,15 @@ You can see the habits tracked by habito using the `list` command.
 ```shell
 $ habito list
 
-┌─────────┬───────┬─────────┬─────────┬─────────┬──────────┐
-│ Habit   │ Goal  │ 1/12    │ 1/11    │ 1/10    │ 1/9      │
-├─────────┼───────┼─────────┼─────────┼─────────┼──────────┤
-│ writing │ 750.0 │ ✗ (0.0) │ ✗ (0.0) │ ✗ (0.0) │ ✗ (0.0)  │
-└─────────┴───────┴─────────┴─────────┴─────────┴──────────┘
+┌───────────────────────┬───────┬────────┬──────────────────────────┐
+│ Habit                 │ Goal  │ Streak │ Activities               │
+├───────────────────────┼───────┼────────┼──────────────────────────┤
+│ 1: writing            │ 750.0 │ 0 days │ □ □ □ □ □ □ □ □ □ □ □ □  │
+└───────────────────────┴───────┴────────┴──────────────────────────┘
 ```
 
 It shows the **goal** for tracked habit, and the progress for past few days. A
-`✗` mark indicates goal is _not met_ for that day.
+`□` symbol indicates goal is _not met_ for that day.
 
 ### Daily check-in
 
@@ -92,20 +91,23 @@ Let's update progress for today.
 ```shell
 > habito checkin writing -q 800
 
-Added 800 words to habit
-writing
+Added 800.0 words to habit writing for Sat Feb 17 2018.
 
 > habito list
 
-┌─────────┬───────┬───────────┬─────────┬─────────┬─────────┐
-│ Habit   │ Goal  │ 1/12      │ 1/11    │ 1/10    │ 1/9     │
-├─────────┼───────┼───────────┼─────────┼─────────┼─────────┤
-│ writing │ 750.0 │ ✓ (800.0) │ ✗ (0.0) │ ✗ (0.0) │ ✗ (0.0) │
-└─────────┴───────┴───────────┴─────────┴─────────┴─────────┘
+┌───────────────────────┬───────┬────────┬──────────────────────────┐
+│ Habit                 │ Goal  │ Streak │ Activities               │
+├───────────────────────┼───────┼────────┼──────────────────────────┤
+│ 1: writing            │ 750.0 │ 1 day  │ ■ □ □ □ □ □ □ □ □ □ □ □  │
+└───────────────────────┴───────┴────────┴──────────────────────────┘
 ```
 
-With the latest `checkin`, we have a `✓` for the day. It indicates we have met
-the goal for that day!
+With the latest `checkin`, we have a green colored square <span
+style="color:green">■</span> for the day. It indicates we have met the goal for
+that day!
 
-Go ahead and add a few habits. Head over to the [Commands](commands.md)
-reference page for more details of each command and usage.
+Go ahead and add a few habits. Try a few check-ins. Did you know it is possible
+to check-in for a past date? And you can `delete` the test habit later.
+
+Head over to the [Commands](commands.md) reference page for more details of each
+command.
