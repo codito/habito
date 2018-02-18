@@ -8,7 +8,7 @@
 
 Simple command line habits tracker.
 
-TODO: screencast goes here!
+<script src="https://asciinema.org/a/sczj9UFocJ6VbWLGWBguc1XCI.js" id="asciicast-sczj9UFocJ6VbWLGWBguc1XCI" async></script>
 
 ---
 

@@ -24,17 +24,13 @@ Here’s how a command line session looks like:
 
 ::
 
-    $ # add a random habit
-    $ habito add writing 200.0 --units words
-    # output
-    You have commited to 200.0 words of
-    writing every day!
+    $ # add a habit
+    $ habito add writing 750.0 --units words
+    You have commited to 750.0 words of writing every day!
 
     $ # check in an update
-    $ habito checkin writ --q 128.0
-    # output
-    Added 128.0 words to habit
-    writing 
+    $ habito checkin writ -q 128.0
+    Added 128.0 words to habit writing for Sun Feb 18 2018.
 
     $ # list status of habits
     $ habito list
@@ -42,7 +38,7 @@ Here’s how a command line session looks like:
 Screenshot
 ==========
 
-.. figure:: http://i.imgur.com/w6K57Bl.jpg
+.. figure:: docs/screenshot.png
    :alt: Habito screenshot
 
    Habito screenshot
