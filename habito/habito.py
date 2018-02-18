@@ -106,8 +106,11 @@ def add(name, quantum, units):
 
 @cli.command()
 @click.argument("id", type=click.INT)
-@click.option('--name', '-n', help="The new name (leave empty to leave unchanged)")
-@click.option('--quantum', '-q', help="The new quantum (leave empty to leave unchanged)", type=click.FLOAT)
+@click.option('--name', '-n',
+              help="The new name (leave empty to leave unchanged).")
+@click.option('--quantum', '-q',
+              type=click.FLOAT,
+              help="The new quantum (leave empty to leave unchanged).")
 def edit(id, name, quantum):
     """Edit a habit."""
     try:
@@ -118,7 +121,12 @@ def edit(id, name, quantum):
     habit.name = name.strip() or habit.name
     habit.quantum = quantum or habit.quantum
     habit.save()
-    click.echo("Habit with id {} has been saved with name: {} and quantum: {}".format(id, habit.name, habit.quantum))
+
+    msg_id = click.style(str(habit.id), fg='green')
+    msg_name = click.style(habit.name, fg='green')
+    msg_quantum = click.style(str(habit.quantum), fg='green')
+    click.echo("Habit with id {} has been saved with name: {} and quantum: {}."
+               .format(msg_id, msg_name, msg_quantum))
 
 
 @cli.command()
