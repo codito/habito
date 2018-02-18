@@ -1,0 +1,812 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.6.2">
+    
+    
+      
+        <title>Commands - Habito</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.9b572555.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-palette.6079476c.css">
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="light-blue" data-md-color-accent="deep-orange">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <a href="#command-reference" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="Habito" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                Habito
+              </span>
+              <span class="md-header-nav__topic">
+                Commands
+              </span>
+            
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
+        
+      </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <span class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </span>
+    Habito
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Commands
+      </label>
+    
+    <a href="./" title="Commands" class="md-nav__link md-nav__link--active">
+      Commands
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#add" title="Add" class="md-nav__link">
+    Add
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list" title="List" class="md-nav__link">
+    List
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax_1" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_1" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkin" title="Checkin" class="md-nav__link">
+    Checkin
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax_2" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_2" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edit" title="Edit" class="md-nav__link">
+    Edit
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax_3" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_3" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete" title="Delete" class="md-nav__link">
+    Delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax_4" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_4" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../license/" title="License" class="md-nav__link">
+      License
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#add" title="Add" class="md-nav__link">
+    Add
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#list" title="List" class="md-nav__link">
+    List
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax_1" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_1" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checkin" title="Checkin" class="md-nav__link">
+    Checkin
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax_2" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_2" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edit" title="Edit" class="md-nav__link">
+    Edit
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax_3" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_3" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delete" title="Delete" class="md-nav__link">
+    Delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax_4" title="Syntax" class="md-nav__link">
+    Syntax
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_4" title="Examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="command-reference">Command reference</h1>
+<p>We learnt day-to-day usage of habito in the <a href="..#quickstart">quickstart</a>
+tutorial. Now let's dive deeper into the various command supported by habito.</p>
+<h2 id="add">Add</h2>
+<p>Add command (<code>habito add</code>) informs habito to track a new habit. A habit has
+three aspects:</p>
+<ul>
+<li>A simple and easy to remember name</li>
+<li>A metric or unit for measuring the habit. E.g. miles if you're tracking daily
+  runs</li>
+<li>A daily target for the habit. E.g. 3 miles daily</li>
+</ul>
+<h3 id="syntax">Syntax</h3>
+<pre><code>Usage: habito add [OPTIONS] [NAME]... QUANTUM
+
+  Add a habit.
+
+Options:
+  -u, --units TEXT  Units of data.
+  --help            Show this message and exit.
+</code></pre>
+
+<ul>
+<li><code>NAME</code> is the name to identify a habit</li>
+<li><code>QUANTUM</code> is the daily target for the habit</li>
+<li><code>--units</code> specifies the measurement unit for the habit</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<p>(1) Add a habit</p>
+<pre><code class="sh">&gt; habito add running 3
+You have commited to 3.0 units of running every day!
+</code></pre>
+
+<p>(2) Add a habit specifying units</p>
+<pre><code class="sh">&gt; habito add running 3 -u miles
+You have commited to 3.0 miles of running every day!
+</code></pre>
+
+<h2 id="list">List</h2>
+<p>List command (<code>habito list</code>) shows the activities on the habits tracked by
+habito. Habito keeps an account of several aspects of a habit:</p>
+<ul>
+<li>Activities for a habit. An activity is just a check-in, an update on the
+  habit for a particular day.</li>
+<li>Multiple check-ins for a day are supported, habito aggregates these by day for
+  reporting.</li>
+<li>Habito supports <a href="https://lifehacker.com/281626/jerry-seinfelds-productivity-secret">Don't break the chain</a> principle with
+  <em>Streaks</em>. A streak represents <strong>continuous set of days</strong> where you've
+  exceeded the target set for a habit.</li>
+</ul>
+<h3 id="syntax_1">Syntax</h3>
+<pre><code>Usage: habito list [OPTIONS]
+
+  List all tracked habits.
+
+Options:
+  -l      Long listing with date and quantum.
+  --help  Show this message and exit.
+</code></pre>
+
+<p>Activity reporting follows below convention by default. Use the <code>-l</code> switch if
+you'd like a date based view.</p>
+<ul>
+<li><span style="color:green">■</span> indicates we have met the goal for that
+  day!</li>
+<li>■ implies some activity on a day, but goal is not met</li>
+<li>□ implies no activity for the habito on a day</li>
+</ul>
+<h3 id="examples_1">Examples</h3>
+<p>(1) List all tracked habits</p>
+<pre><code class="sh">&gt; habito list
+┌───────────────────────┬───────┬────────┬──────────────────────────┐
+│ Habit                 │ Goal  │ Streak │ Activities               │
+├───────────────────────┼───────┼────────┼──────────────────────────┤
+│ 1: running            │ 3.0   │ 2 days │ ■ ■ □ □ ■ □ ■ ■ ■ □ ■ □  │
+└───────────────────────┴───────┴────────┴──────────────────────────┘
+</code></pre>
+
+<p>(2) List habits with dates</p>
+<pre><code class="sh">&gt; habito list -l
+┌───────────────────────┬───────┬────────┬───────┬───────┬──────┬──────┬───────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┐
+│ Habit                 │ Goal  │ Streak │ 2/18  │ 2/17  │ 2/16 │ 2/15 │ 2/14  │ 2/13 │ 2/12 │ 2/11 │ 2/10 │ 2/9  │ 2/8  │ 2/7  │
+├───────────────────────┼───────┼────────┼───────┼───────┼──────┼──────┼───────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┤
+│ 1: running            │ 3.0   │ 2 days │ 3.0   │ 3.1   │ None │ None │ 3.5   │ None │ 1.0  │ 1.0  │ 2.0  │ None │ 1.0  │ None │
+└───────────────────────┴───────┴────────┴───────┴───────┴──────┴──────┴───────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘
+</code></pre>
+
+<h2 id="checkin">Checkin</h2>
+<p><code>checkin</code> command is used to update progress on the tracked habits.</p>
+<h3 id="syntax_2">Syntax</h3>
+<pre><code>Usage: habito checkin [OPTIONS] [NAME]...
+
+  Commit progress for a habit.
+
+Options:
+  -r, --review         Update activity for all tracked habits.
+  -d, --date TEXT      Date of activity in mm/dd format (defaults to today).
+  -q, --quantum FLOAT  Progress for the day.
+  --help               Show this message and exit.
+</code></pre>
+
+<ul>
+<li><code>NAME</code> is the habit name. Habito uses a simple regex match, so you need to
+  provide an approximately unique string to identify the habit. E.g. <code>wri</code> for
+  <code>writing</code>. Note that <code>checkin</code> will warn if multiple habits match.</li>
+<li><code>--review</code> enables review mode. Habito iterates through all habits and
+  prompts for an update on it. Doesn't require <code>NAME</code> or <code>quantum</code> arguments.</li>
+<li><code>--date</code> can be used to specify a date for an update. E.g. 8th October is
+  10/8 (mm/dd format).</li>
+<li><code>--quantum</code> specifies progress data (float). E.g. 10.0.</li>
+</ul>
+<h3 id="examples_2">Examples</h3>
+<p>(1) Update progress for a single habit</p>
+<pre><code class="sh">&gt; habito checkin run -q 10.0
+Added 10.0 miles to habit running for Mon Feb 12 2018.
+</code></pre>
+
+<p>(2) Update progress for single habit specifying date</p>
+<pre><code class="sh"># Today is 12th Feb, 2018
+&gt; habito checkin run -q 10.0 -d 2/8
+Added 10.0 words to habit running for Thu Feb 08 2018.
+
+# Habito assumes a past date if a future date is provided
+&gt; habito checkin run -q 10.0 -d 4/8
+Added 10.0 words to habit running for Sat Apr 08 2017.
+</code></pre>
+
+<p>(3) Review all habits and update progress</p>
+<p>We will skip update for <code>running</code> habit in below session. Date of update is 9th
+Feb, 2018 (2/9 in mm/dd format).</p>
+<pre><code class="sh"># Today is 12th Feb, 2018
+&gt; habito checkin -r -d 2/9
+Please update progress of habits for Fri Feb 09 2018:
+(Press `enter` if you'd like to skip update for a habit.)
+  - running (Goal: 3.0 miles):
+  - read fiction daily (Goal: 15.0 minutes): 15
+  - code everyday (Goal: 1.0 commits): 1
+</code></pre>
+
+<h2 id="edit">Edit</h2>
+<p>Edit command (<code>habito edit</code>) allows updating habit metadata: name and quantum (the target goal).</p>
+<h3 id="syntax_3">Syntax</h3>
+<pre><code>Usage: habito edit [OPTIONS] ID
+
+  Edit a habit.
+
+Options:
+  -n, --name TEXT      The new name (leave empty to leave unchanged)
+  -q, --quantum FLOAT  The new quantum (leave empty to leave unchanged)
+  --help               Show this message and exit.
+</code></pre>
+
+<ul>
+<li><code>ID</code> is the habit id (you can find it in <code>habito list</code> output)</li>
+</ul>
+<h3 id="examples_3">Examples</h3>
+<p>(1) Change a habit name</p>
+<pre><code class="sh">&gt; habito edit 1 -n &quot;run with joe&quot;
+Habit with id 9 has been saved with name: run with joe and quantum: 3.0.
+</code></pre>
+
+<p>(2) Change a habit name and quantum</p>
+<pre><code class="sh">&gt; habito edit 1 -n &quot;run with joe&quot; -q 2.5
+Habit with id 9 has been saved with name: run with joe and quantum: 2.5.
+</code></pre>
+
+<h2 id="delete">Delete</h2>
+<p>Delete command (<code>habito delete</code>) removes the habit and activities from the data store.</p>
+<h3 id="syntax_4">Syntax</h3>
+<pre><code>Usage: habito delete [OPTIONS] ID
+
+  Delete a habit.
+
+Options:
+  --keeplogs  Preserve activity logs for the habit.
+  --help      Show this message and exit.
+</code></pre>
+
+<ul>
+<li><code>ID</code> is the habit id (you can find it in <code>habito list</code> output)</li>
+</ul>
+<h3 id="examples_4">Examples</h3>
+<p>(1) Delete a habit (keep the logs)</p>
+<pre><code class="sh">&gt; habito delete 9 --keeplogs
+Are you sure you want to delete habit 9: run with joe (this cannot be undone!) [y/N]: y
+Habit 9: run with joe has been deleted!
+</code></pre>
+
+<p>(2) Delete a habit along with activities</p>
+<pre><code class="sh">&gt; habito delete 9
+Are you sure you want to delete habit 9: run with joe (this cannot be undone!) [y/N]: y
+Habit 9: run with joe has been deleted!
+</code></pre>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href=".." title="Overview" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Overview
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../license/" title="License" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                License
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.abd7b172.js"></script>
+      
+      <script>app.initialize({version:"0.17.2",url:{base:".."}})</script>
+      
+    
+    
+      
+    
+  </body>
+</html>
