@@ -276,7 +276,7 @@ class HabitoTests(HabitoTestCase):
         edit_result = self._run_command(habito.edit, [str(habit.id), "-n EHabit"])
 
         assert edit_result.output == ("Habit with id 1 has been saved with"
-                                      " name: EHabit and quantum: 0.0\n")
+                                      " name: EHabit and quantum: 0.0.\n")
         list_result = self._run_command(habito.list)
         assert "EHabit" in list_result.output
         assert habit.name not in list_result.output
