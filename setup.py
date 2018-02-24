@@ -13,7 +13,7 @@ DESCRIPTION = "Simple command line habits tracker"
 URL = "https://github.com/codito/habito"
 EMAIL = "arun@codito.in"
 AUTHOR = "Arun Mahapatra"
-# VERSION = (1, 0, a2)
+VERSION = (1, 0, 0)
 
 # Dependencies required for execution
 REQUIRED = ["click", "peewee>=3.0.15", "terminaltables"]
@@ -23,6 +23,10 @@ here = path.abspath(path.dirname(__file__))
 # Get the long description from the relevant file
 with open(path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
+
+# Load the package's __version__.py module as a dictionary.
+about = {}
+about["__version__"] = '.'.join(map(str, VERSION))
 
 
 class UploadCommand(Command):
@@ -64,7 +68,7 @@ class UploadCommand(Command):
 
 setup(
     name=NAME,
-    version="1.0a5",    # FIXME semantic versioning
+    version=about["__version__"],
     description=DESCRIPTION,
     long_description=long_description,
     url=URL,

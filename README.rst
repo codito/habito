@@ -43,19 +43,12 @@ Screenshot
 
    Habito screenshot
 
-Roadmap
-=======
-
-Some of the stuff on top of my mind:
-
--  Show how much data is needed to get me on track to meet goals
--  Gamification!
-
 Contribute
 ==========
 
-``habito`` is alpha at the moment. Please try it out and file any issues
-at github issues page. Your patches are welcome!
+We invite you to try out ``habito`` and file any issues at github issues page. Patches are
+most welcome!
+
 
 .. |Linux Build Status| image:: https://img.shields.io/travis/codito/habito.svg
    :target: https://travis-ci.org/codito/habito
