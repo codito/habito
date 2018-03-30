@@ -1,32 +1,27 @@
 version: 1.0.{build}
 
 init:
-- ps: >-
-    Write-Host "Filesystem root:"
+  - ps: ls -Name "c:\\python*"
+  - "SET PATH=\\Python36;\\Python36\\Scripts;%PATH%"
 
-    ls -Name "C:/"
+install:
+  - ps: ls -name "C:\\Python36\\Lib\\site-packages"
 
-    Write-Host "Installed SDKs:"
-
-    ls -Name "C:/Program Files/Microsoft SDKs/Windows"
-
-    Write-Host "Set python path"
-
-    $env:PATH="$env:SystemDrive\Python36;$env:SystemDrive\Python36\Scripts;$env:PATH"
-
-    Write-Host "Environment path"
-
-    $env:PATH
-
-build_script:
-- cd /D %APPVEYOR_BUILD_FOLDER%
-- python -m pip install --upgrade pip
-- pip install pipenv
-- pipenv install --dev
-- pipenv run flake8
-- pipenv run setup.py build
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+  - "python -m pip install --upgrade pip"
+  - "pip --version"
+  - cd /D %APPVEYOR_BUILD_FOLDER%
+  - "pip install pipenv"
+  - "python -m venv .venv"
+  - ps: .venv\Scripts\activate.ps1
+  - "pipenv install --dev"
+  - "pip freeze"
+  - "pipenv run flake8"
+  - "pipenv run setup.py build"
 
 test_script:
-- cd /D %APPVEYOR_BUILD_FOLDER%
-- pipenv run pytest --version
-- pipenv run pytest
+  - cd /D %APPVEYOR_BUILD_FOLDER%
+  - pipenv run pytest --version
+  - pipenv run pytest
