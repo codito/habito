@@ -20,6 +20,7 @@ init:
 
 build_script:
 - cd /D %APPVEYOR_BUILD_FOLDER%
+- python -m pip install --upgrade pip
 - pip install pipenv
 - pipenv install --dev
 - pipenv run flake8
