@@ -3,12 +3,19 @@ version: 1.0.{build}
 init:
 - ps: >-
     Write-Host "Filesystem root:"
+
     ls -Name "C:/"
+
     Write-Host "Installed SDKs:"
+
     ls -Name "C:/Program Files/Microsoft SDKs/Windows"
+
     Write-Host "Set python path"
+
     $env:PATH="$env:SystemDrive\Python36;$env:SystemDrive\Python36\Scripts;$env:PATH"
+
     Write-Host "Environment path"
+
     $env:PATH
 
 build_script:
