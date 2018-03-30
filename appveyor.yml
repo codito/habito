@@ -1,5 +1,8 @@
 version: 1.0.{build}
 
+# Turn off default msbuild integration
+build: false
+
 init:
   - ps: ls -Name "c:\\python*"
   - "SET PATH=\\Python36;\\Python36\\Scripts;%PATH%"
