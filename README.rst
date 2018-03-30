@@ -3,7 +3,7 @@ Habito
 
 Simple commandline habits tracker.
 
-|Linux Build Status| |Windows Build status| |codecov coverage| |PyPI|
+|Linux Build Status| |Windows Build status| |codecov coverage| |PyPI| |Say thanks!|
 
 Installation
 ============
@@ -58,4 +58,5 @@ most welcome!
    :target: http://codecov.io/github/codito/habito?branch=master
 .. |PyPI| image:: https://img.shields.io/pypi/v/habito.svg
    :target: https://pypi.python.org/pypi/habito
-
+.. |Say thanks!| image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg 
+   :target: https://saythanks.io/to/codito
