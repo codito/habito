@@ -26,5 +26,6 @@ install:
 
 test_script:
   - cd /D %APPVEYOR_BUILD_FOLDER%
-  - pipenv run pytest --version
-  - pipenv run pytest
+  - ps: .venv\Scripts\activate.ps1
+  - "pipenv run pytest --version"
+  - "pipenv run pytest"
