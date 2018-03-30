@@ -22,7 +22,8 @@ install:
   - "pipenv install --dev"
   - "pip freeze"
   - "pipenv run flake8"
-  - "pipenv run setup.py build"
+  - "pipenv run setup.py develop"
+  - "pip install colorama"  # workaround for pipenv failure
 
 test_script:
   - cd /D %APPVEYOR_BUILD_FOLDER%
