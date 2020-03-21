@@ -5,10 +5,10 @@ build: false
 
 init:
   - ps: ls -Name "c:\\python*"
-  - "SET PATH=\\Python36;\\Python36\\Scripts;%PATH%"
+  - "SET PATH=\\Python38;\\Python38\\Scripts;%PATH%"
 
 install:
-  - ps: ls -name "C:\\Python36\\Lib\\site-packages"
+  - ps: ls -name "C:\\Python38\\Lib\\site-packages"
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
