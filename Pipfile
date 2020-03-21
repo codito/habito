@@ -1,23 +1,17 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = false
 name = "pypi"
 
-
 [packages]
-
-"e1839a8" = {path = ".", editable = true}
-
+e1839a8 = {path = ".",editable = true}
 
 [dev-packages]
-
 "flake8" = "*"
 twine = "*"
 wheel = "*"
 coverage = "*"
 "flake8-docstrings" = "*"
-"flake8-per-file-ignores" = "*"
 mkdocs = "*"
 mkdocs-material = "*"
 pytest = "*"
