@@ -27,7 +27,6 @@ jobs:
         pipenv install --dev
         pipenv install codecov --dev
         pip freeze
-        pipenv run setup.py develop
     - name: Lint with flake8
       run: |
         pipenv run flake8
