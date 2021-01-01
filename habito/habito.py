@@ -28,8 +28,8 @@ def cli():
 
 
 @cli.command()
-@click.option("-l", is_flag=True, help="Long listing with date and quantum.")
-def list(l):
+@click.option("-l", "long_list", is_flag=True, help="Long listing with date and quantum.")
+def list(long_list):
     """List all tracked habits."""
     from terminaltables import SingleTable
     from textwrap import wrap
@@ -42,7 +42,7 @@ def list(l):
         raise SystemExit(1)
 
     table_title = ["Habit", "Goal", "Streak"]
-    minimal = not l
+    minimal = not long_list
     if minimal:
         table_title.append("Activities")
     else:
