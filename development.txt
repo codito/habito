@@ -1,0 +1,11 @@
+-r requirements.txt
+coverage
+flake8
+flake8-docstrings
+mkdocs
+mkdocs-material
+pytest
+pytest-cov
+pytest-mock
+twine
+wheel
