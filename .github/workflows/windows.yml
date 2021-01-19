@@ -1,7 +1,7 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Habito
+name: windows
 
 on:
   push:
@@ -12,19 +12,21 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.8
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r development.txt
-        pip install codecov
         pip freeze
     - name: Lint with flake8
       run: |
@@ -32,6 +34,3 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Upload coverage results
-      run: |
-        codecov

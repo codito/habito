@@ -3,7 +3,7 @@ Habito
 
 Simple commandline habits tracker.
 
-|Linux Build Status| |Windows Build status| |codecov coverage| |PyPI| |Say thanks!|
+|Linux Build Status| |Windows Build status| |codecov coverage| |PyPI|
 
 Installation
 ============
@@ -50,13 +50,11 @@ We invite you to try out ``habito`` and file any issues at github issues page. P
 most welcome!
 
 
-.. |Linux Build Status| image:: https://img.shields.io/travis/codito/habito.svg
-   :target: https://travis-ci.org/codito/habito
-.. |Windows Build status| image:: https://img.shields.io/appveyor/ci/codito/habito.svg
-   :target: https://ci.appveyor.com/project/codito/habito
+.. |Linux Build Status| image:: https://github.com/codito/habito/workflows/linux/badge.svg
+   :target: https://github.com/codito/habito/actions?query=workflow%3Alinux
+.. |Windows Build status| image:: https://github.com/codito/habito/workflows/windows/badge.svg
+   :target: https://github.com/codito/habito/actions?query=workflow%3Awindows
 .. |codecov coverage| image:: https://img.shields.io/codecov/c/github/codito/habito.svg
    :target: http://codecov.io/github/codito/habito?branch=master
 .. |PyPI| image:: https://img.shields.io/pypi/v/habito.svg
    :target: https://pypi.python.org/pypi/habito
-.. |Say thanks!| image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg 
-   :target: https://saythanks.io/to/codito
