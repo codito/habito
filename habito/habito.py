@@ -118,7 +118,7 @@ def edit(id, name, quantum):
     except models.Habit.DoesNotExist:
         click.echo("The habit you're trying to edit does not exist!")
         raise SystemExit(1)
-    habit.name = name.strip() or habit.name
+    habit.name = name.strip() if name else habit.name
     habit.quantum = quantum or habit.quantum
     habit.save()
 

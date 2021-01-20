@@ -56,11 +56,11 @@ class HabitoTests(HabitoTestCase):
 
             assert click_mock.called
             assert mkdir_mock.called
-   
+
     def test_habito_list_table_adapts_to_terminal_width(self):
         for terminal_width in range(0, 101, 5):
             nr_of_dates = terminal_width//10 - 4
-            habito.TERMINAL_WIDTH = terminal_width 
+            habito.TERMINAL_WIDTH = terminal_width
             result = self._run_command(habito.list, ["-l"])
             if nr_of_dates < 1:
                 assert "terminal window is too small" in result.output
@@ -281,6 +281,18 @@ class HabitoTests(HabitoTestCase):
         assert "EHabit" in list_result.output
         assert habit.name not in list_result.output
 
+    def test_edit_quantum(self):
+        habit = self.create_habit()
+        self.add_summary(habit)
+
+        edit_result = self._run_command(habito.edit, [str(habit.id), "-q 3.0"])
+
+        assert edit_result.output == ("Habit with id 1 has been saved with"
+                                      " name: HabitOne and quantum: 3.0.\n")
+        list_result = self._run_command(habito.list)
+        assert "3.0" in list_result.output
+        assert "0.0" not in list_result.output
+
     def test_non_existing_edit(self):
         edit_result = self._run_command(habito.edit, [str(10), "-n test"])
 
@@ -326,7 +338,7 @@ class HabitoTests(HabitoTestCase):
 
         assert habito.models.Activity.select().count() == 1
         assert habito.models.Habit.select().where(habito.models.Habit.active).count() == 0
-    
+
     def _verify_checkin_date(self, date_str, year, output):
         date = datetime.strptime(date_str, "%m/%d")\
             .replace(year=year).strftime("%a %b %d %Y")
