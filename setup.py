@@ -77,7 +77,7 @@ setup(
 
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
     entry_points={
-        "console_scripts": ["habito=habito.habito:cli"],
+        "console_scripts": ["habito=habito.commands:cli"],
     },
     install_requires=REQUIRED,
 
