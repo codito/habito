@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+"""Habito edit command."""
 import click
 
-from habito import models as models
+from habito import models
 
 
 @click.command()

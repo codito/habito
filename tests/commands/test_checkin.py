@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+"""Tests for checkin command."""
 from datetime import datetime, date, timedelta
 
 import habito
@@ -22,11 +24,11 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
 
     def test_habito_checkin_should_show_error_if_multiple_habits_match(self):
         dummy_date = date(1201, 10, 12)
-        habit = self.create_habit()
-        habit_two = self.create_habit(name="Habit Two",
-                                      created_date=dummy_date,
-                                      quantum=0,
-                                      magica="be awesome!")
+        self.create_habit()
+        self.create_habit(name="Habit Two",
+                          created_date=dummy_date,
+                          quantum=0,
+                          magica="be awesome!")
 
         result = self._run_command(checkin,
                                    ["Habit", "-q 9.1"])
@@ -101,6 +103,7 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
         activity_entry = models.Activity \
             .select().where(models.Activity.for_habit == habit)
 
+        assert result.output.find(result_units_one) != 1
         assert result.output.find(result_units_two) != -1
         assert result.output.find(habit.name) != -1
         assert activity_entry.count() == 2
@@ -153,4 +156,3 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
 
         assert result.exit_code == 0
         assert models.Activity.select().count() == 0
-

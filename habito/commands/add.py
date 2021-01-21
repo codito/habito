@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+"""Habito add command."""
 from datetime import datetime
 
 import click

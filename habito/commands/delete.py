@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+"""Habito delete command."""
 import click
 
 from habito import models as models

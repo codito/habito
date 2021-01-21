@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+"""Tests for edit command."""
 import habito
 import habito.commands
 from tests.commands import HabitoCommandTestCase
@@ -33,4 +35,3 @@ class HabitoEditTestCase(HabitoCommandTestCase):
 
         assert edit_result.output == "The habit you're trying to edit does not exist!\n"
         assert edit_result.exit_code == 1
-

@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
+"""Tests for delete command."""
 import habito
 import habito.commands
-from habito import models
 from tests.commands import HabitoCommandTestCase
 
 
@@ -46,6 +47,7 @@ class HabitoDeleteTestCase(HabitoCommandTestCase):
         delete_result = self._run_command_with_stdin(habito.commands.delete,
                                                      ["1", "--keeplogs"], "y")
 
+        assert delete_result.exit_code == 0
         assert habito.models.Activity.select().count() == 1
         assert habito.models.Habit.select().where(
             habito.models.Habit.active).count() == 0

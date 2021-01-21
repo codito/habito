@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+"""Habito checkin command."""
 from datetime import datetime
 from sys import float_info
 

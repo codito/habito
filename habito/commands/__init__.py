@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+"""Commands for Habito."""
 import os
 import click
 
