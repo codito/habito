@@ -176,7 +176,7 @@ class Activity(BaseModel):
 
     """
 
-    for_habit = ForeignKeyField(Habit, related_name="activities",
+    for_habit = ForeignKeyField(Habit, backref="activities",
                                 index=True)
     quantum = DoubleField()
     update_date = DateTimeField(default=datetime.now())
@@ -194,7 +194,7 @@ class Summary(BaseModel):
 
     """
 
-    for_habit = ForeignKeyField(Habit, related_name="summary",
+    for_habit = ForeignKeyField(Habit, backref="summary",
                                 index=True)
     target = DoubleField()
     target_date = DateField()
