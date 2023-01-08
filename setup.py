@@ -13,7 +13,7 @@ DESCRIPTION = "Simple command line habits tracker"
 URL = "https://github.com/codito/habito"
 EMAIL = "arun@codito.in"
 AUTHOR = "Arun Mahapatra"
-VERSION = (1, 0, 0)
+VERSION = (1, 1, 0)
 
 # Dependencies required for execution
 REQUIRED = ["click", "peewee>=3.0.15", "terminaltables"]
@@ -80,6 +80,7 @@ setup(
         "console_scripts": ["habito=habito.commands:cli"],
     },
     install_requires=REQUIRED,
+    python_requires=">=3.5",
 
     license="MIT",
     classifiers=[
@@ -98,8 +99,6 @@ setup(
 
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.2",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
