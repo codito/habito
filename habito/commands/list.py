@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """List all habits."""
 import logging
+import shutil
 from datetime import datetime, timedelta
 
 import click
@@ -21,11 +22,11 @@ def list(long_list):
     from terminaltables import SingleTable
     from textwrap import wrap
 
-    terminal_width, terminal_height = click.get_terminal_size()
+    terminal_width, terminal_height = shutil.get_terminal_size()
 
     nr_of_dates = terminal_width // 10 - 4
     if nr_of_dates < 1:
-        logger.debug("list: Actual terminal width = {0}.".format(click.get_terminal_size()[0]))
+        logger.debug("list: Actual terminal width = {0}.".format(shutil.get_terminal_size()[0]))
         logger.debug("list: Observed terminal width = {0}.".format(terminal_width))
         click.echo("Your terminal window is too small. Please make it wider and try again")
         raise SystemExit(1)

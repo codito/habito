@@ -52,7 +52,7 @@ class HabitoListCommandTestCase(HabitoCommandTestCase):
 
         assert "10 days" in result.output
 
-    @patch("click.get_terminal_size")
+    @patch("shutil.get_terminal_size")
     def test_habito_list_table_adapts_to_terminal_width(self, term_mock):
         for terminal_width in range(0, 101, 5):
             term_mock.return_value = (terminal_width, 80)
