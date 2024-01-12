@@ -5,34 +5,33 @@ name: linux
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r development.txt
-        pip install codecov
-        pip freeze
-    - name: Lint with flake8
-      run: |
-        flake8
-    - name: Test with pytest
-      run: |
-        pytest
-    - name: Upload coverage results
-      run: |
-        codecov
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r development.txt
+          pip install codecov
+          pip freeze
+      - name: Lint with ruff
+        run: |
+          ruff
+      - name: Test with pytest
+        run: |
+          pytest
+      - name: Upload coverage results
+        run: |
+          codecov

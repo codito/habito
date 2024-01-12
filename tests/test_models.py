@@ -209,16 +209,19 @@ class HabitTests(HabitoTestCase):
         models.setup(":memory:")
 
     def tearDown(self):
-        models.db.drop_tables([models.Habit, models.Activity, models.Summary],
-                              safe=True)
+        models.db.drop_tables(
+            [models.Habit, models.Activity, models.Summary], safe=True
+        )
 
     def test_habit_add_creates_a_habit(self):
         dummy_date = datetime.now()
-        habit = models.Habit.add(name="Dummy Habit",
-                                 created_date=dummy_date,
-                                 quantum=1,
-                                 units="dummy_units",
-                                 magica="magica")
+        habit = models.Habit.add(
+            name="Dummy Habit",
+            created_date=dummy_date,
+            quantum=1,
+            units="dummy_units",
+            magica="magica",
+        )
 
         assert habit.name == "Dummy Habit"
         assert habit.created_date == dummy_date
@@ -229,10 +232,9 @@ class HabitTests(HabitoTestCase):
         assert habit.active is True
 
     def test_habit_add_creates_a_summary_for_habit(self):
-        habit = models.Habit.add(name="Dummy Habit",
-                                 quantum=1,
-                                 units="dummy_units",
-                                 magica="magica")
+        habit = models.Habit.add(
+            name="Dummy Habit", quantum=1, units="dummy_units", magica="magica"
+        )
 
         summary = models.Summary.get(for_habit=habit)
         assert summary.streak == 0
@@ -243,8 +245,9 @@ class SummaryTests(HabitoTestCase):
         models.setup(":memory:")
 
     def tearDown(self):
-        models.db.drop_tables([models.Habit, models.Activity, models.Summary],
-                              safe=True)
+        models.db.drop_tables(
+            [models.Habit, models.Activity, models.Summary], safe=True
+        )
 
     def test_update_streak_sets_streak_unchanged_for_no_activities(self):
         habit = self.create_habit()

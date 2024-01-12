@@ -18,12 +18,16 @@ class HabitoCommandTestCase(HabitoTestCase):
         models.setup(habito.commands.database_name)
 
     def tearDown(self):
-        models.db.drop_tables([models.Habit, models.Activity, models.Summary],
-                              safe=True)
+        models.db.drop_tables(
+            [models.Habit, models.Activity, models.Summary], safe=True
+        )
 
     def _verify_checkin_date(self, date_str, year, output):
-        date = datetime.strptime(date_str, "%m/%d") \
-            .replace(year=year).strftime("%a %b %d %Y")
+        date = (
+            datetime.strptime(date_str, "%m/%d")
+            .replace(year=year)
+            .strftime("%a %b %d %Y")
+        )
         assert date in output
 
     def _run_command(self, command, args=[]):

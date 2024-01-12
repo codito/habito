@@ -26,7 +26,7 @@ with open(path.join(here, "README.rst"), encoding="utf-8") as f:
 
 # Load the package's __version__.py module as a dictionary.
 about = {}
-about["__version__"] = '.'.join(map(str, VERSION))
+about["__version__"] = ".".join(map(str, VERSION))
 
 
 class UploadCommand(Command):
@@ -57,8 +57,7 @@ class UploadCommand(Command):
             pass
 
         self.status("Building Source and Wheel (universal) distribution…")
-        os.system("{0} setup.py sdist bdist_wheel --universal"
-                  .format(sys.executable))
+        os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
 
         self.status("Uploading the package to PyPi via Twine…")
         os.system("twine upload dist/*")
@@ -74,35 +73,27 @@ setup(
     url=URL,
     author=AUTHOR,
     author_email=EMAIL,
-
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
     entry_points={
         "console_scripts": ["habito=habito.commands:cli"],
     },
     install_requires=REQUIRED,
     python_requires=">=3.5",
-
     license="MIT",
     classifiers=[
         "Development Status :: 3 - Alpha",
-
         "Environment :: Console",
-
         "Intended Audience :: End Users/Desktop",
         "Intended Audience :: Developers",
-
         "License :: OSI Approved :: MIT License",
-
         "Operating System :: MacOS",
         "Operating System :: Microsoft",
         "Operating System :: POSIX :: Linux",
-
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
-
         "Topic :: Utilities",
     ],
     keywords="habits goals track tracking quantified self",

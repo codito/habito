@@ -10,8 +10,7 @@ from tests.commands import HabitoCommandTestCase
 
 class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
     def test_habito_checkin_should_show_error_if_no_habit_exists(self):
-        result = self._run_command(habito.commands.checkin,
-                                   ["dummy habit", "-q 9.1"])
+        result = self._run_command(habito.commands.checkin, ["dummy habit", "-q 9.1"])
 
         assert result.exit_code == 0
         assert result.output.startswith("No habit matched the")
@@ -25,13 +24,11 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
     def test_habito_checkin_should_show_error_if_multiple_habits_match(self):
         dummy_date = date(1201, 10, 12)
         self.create_habit()
-        self.create_habit(name="Habit Two",
-                          created_date=dummy_date,
-                          quantum=0,
-                          magica="be awesome!")
+        self.create_habit(
+            name="Habit Two", created_date=dummy_date, quantum=0, magica="be awesome!"
+        )
 
-        result = self._run_command(checkin,
-                                   ["Habit", "-q 9.1"])
+        result = self._run_command(checkin, ["Habit", "-q 9.1"])
 
         assert result.exit_code == 0
         assert result.output.startswith("More than one habits matched the")
@@ -41,10 +38,8 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
         self.add_summary(habit)
         result_units = "9.1 dummy_units"
 
-        result = self._run_command(checkin,
-                                   ["Habit", "-q 9.1"])
-        activity_entry = models.Activity \
-            .get(models.Activity.for_habit == habit)
+        result = self._run_command(checkin, ["Habit", "-q 9.1"])
+        activity_entry = models.Activity.get(models.Activity.for_habit == habit)
 
         assert result.output.find(result_units) != -1
         assert result.output.find(habit.name) != -1
@@ -55,11 +50,11 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
         self.add_summary(habit)
         result_units = "9.1 dummy_units"
 
-        result = self._run_command(checkin,
-                                   ["Habit", "-q 9.1"])
+        result = self._run_command(checkin, ["Habit", "-q 9.1"])
 
-        activity_entry = models.Activity \
-            .select().where(models.Activity.for_habit == habit)
+        activity_entry = models.Activity.select().where(
+            models.Activity.for_habit == habit
+        )
         assert result.output.find(result_units) == -1
         assert result.output.find(habit.name) == -1
         assert activity_entry.count() == 0
@@ -70,7 +65,9 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
         for i in range(5):
             d = datetime.now() - timedelta(days=i)
             date_str = "{d.month}/{d.day}".format(d=d).strip()
-            checkin_result = self._run_command(checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"])
+            checkin_result = self._run_command(
+                checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"]
+            )
 
             self._verify_checkin_date(date_str, d.year, checkin_result.output)
             assert "35.0 dummy_units" in checkin_result.output
@@ -83,12 +80,17 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
         d = datetime.now() + timedelta(days=2)
         date_str = "{d.month}/{d.day}".format(d=d).strip()
 
-        checkin_result = self._run_command(checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"])
+        checkin_result = self._run_command(
+            checkin, ["Habit", "-d {}".format(date_str), "-q 35.0"]
+        )
 
-        a = models.Activity.select() \
-            .where(models.Activity.update_date.year == d.year-1).get()
+        a = (
+            models.Activity.select()
+            .where(models.Activity.update_date.year == d.year - 1)
+            .get()
+        )
         assert a.quantum == 35.0
-        self._verify_checkin_date(date_str, d.year-1, checkin_result.output)
+        self._verify_checkin_date(date_str, d.year - 1, checkin_result.output)
         assert "35.0 dummy_units" in checkin_result.output
 
     def test_habito_checkin_can_add_multiple_data_points_on_same_day(self):
@@ -100,8 +102,9 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
         self._run_command(checkin, ["Habit", "-q 9.1"])
         result = self._run_command(checkin, ["Habit", "-q 10.0001"])
 
-        activity_entry = models.Activity \
-            .select().where(models.Activity.for_habit == habit)
+        activity_entry = models.Activity.select().where(
+            models.Activity.for_habit == habit
+        )
 
         assert result.output.find(result_units_one) != 1
         assert result.output.find(result_units_two) != -1

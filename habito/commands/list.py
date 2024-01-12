@@ -8,16 +8,25 @@ import click
 
 from habito import models as models
 
-TICK = u"\u25A0"  # tick - 2713, black square - 25A0, 25AA, 25AF
-CROSS = u"\u25A1"  # cross - 2717, white square - 25A1, 25AB, 25AE
-PARTIAL = u"\u25A0"  # tick - 2713, black square - 25A0, 25AA, 25AF
+TICK = "\u25A0"  # tick - 2713, black square - 25A0, 25AA, 25AF
+CROSS = "\u25A1"  # cross - 2717, white square - 25A1, 25AB, 25AE
+PARTIAL = "\u25A0"  # tick - 2713, black square - 25A0, 25AA, 25AF
 
 logger = logging.getLogger("habito")
 
 
 @click.command()
-@click.option("-l", "long_list", is_flag=True, help="Long listing with date and quantum.")
-def list(long_list):
+@click.option(
+    "-l", "long_list", is_flag=True, help="Long listing with date and quantum."
+)
+@click.option(
+    "-f",
+    "--format",
+    type=click.Choice(["csv", "table"], case_sensitive=False),
+    default="table",
+    help="Output format. Default is table.",
+)
+def list(long_list, format="table"):
     """List all tracked habits."""
     from terminaltables import SingleTable
     from textwrap import wrap
@@ -26,9 +35,13 @@ def list(long_list):
 
     nr_of_dates = terminal_width // 10 - 4
     if nr_of_dates < 1:
-        logger.debug("list: Actual terminal width = {0}.".format(shutil.get_terminal_size()[0]))
+        logger.debug(
+            "list: Actual terminal width = {0}.".format(shutil.get_terminal_size()[0])
+        )
         logger.debug("list: Observed terminal width = {0}.".format(terminal_width))
-        click.echo("Your terminal window is too small. Please make it wider and try again")
+        click.echo(
+            "Your terminal window is too small. Please make it wider and try again"
+        )
         raise SystemExit(1)
 
     table_title = ["Habit", "Goal", "Streak"]
@@ -70,6 +83,6 @@ def list(long_list):
     max_col_width = max_col_width if max_col_width > 0 else 20
 
     for r in table_rows:
-        r[0] = '\n'.join(wrap(r[0], max_col_width))
+        r[0] = "\n".join(wrap(r[0], max_col_width))
 
     click.echo(table.table)

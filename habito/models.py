@@ -3,14 +3,13 @@
 
 import logging
 from datetime import datetime, timedelta
-from peewee import *    # noqa
+from peewee import *  # noqa
 from playhouse import reflection
 from playhouse.sqlite_ext import SqliteExtDatabase
 from playhouse.migrate import SqliteMigrator, migrate
 
 DB_VERSION = 2
-db = SqliteExtDatabase(None, pragmas=(('foreign_keys', 'on'),),
-                       regexp_function=True)
+db = SqliteExtDatabase(None, pragmas=(("foreign_keys", "on"),), regexp_function=True)
 logger = logging.getLogger("habito.models")
 
 
@@ -25,9 +24,11 @@ def get_activities(days):
     """Get activities of habits for specified days.
 
     Args:
+    ----
         days (int): Number of days of activities to fetch.
 
     Returns:
+    -------
         List of habits with the activities.
 
     """
@@ -36,9 +37,11 @@ def get_activities(days):
 
     from_date = datetime.now() - timedelta(days=days)
     habits = Habit.all_active()
-    activities = Activity.select()\
-        .where(Activity.update_date > from_date)\
+    activities = (
+        Activity.select()
+        .where(Activity.update_date > from_date)
         .order_by(Activity.update_date.desc())
+    )
 
     habits_with_activities = prefetch(habits, activities)
     return habits_with_activities
@@ -48,9 +51,11 @@ def get_daily_activities(days):
     """Get activities for all habits grouped by day for specified days.
 
     Args:
+    ----
         days (int): Number of days of activities to fetch.
 
     Returns:
+    -------
         Tuple of habit and list of daily activities. Daily activities are the
         sum of all activities for the habit for the day.
 
@@ -105,7 +110,8 @@ class BaseModel(Model):
 class Config(BaseModel):
     """Database configuration.
 
-    Attributes:
+    Attributes
+    ----------
         name (str): Name of the setting
         value (str): Value
 
@@ -118,7 +124,8 @@ class Config(BaseModel):
 class Habit(BaseModel):
     """Represents a single habit.
 
-    Attributes:
+    Attributes
+    ----------
         name (str): Description of the habit.
         created_date (datetime): Date on which the habit was added.
         quantum (float): Amount for the habit.
@@ -142,24 +149,24 @@ class Habit(BaseModel):
         """Add a habit.
 
         Args:
+        ----
             query (kwargs): List of fields and values.
 
         Returns:
+        -------
             A Habit.
 
         """
         habit = cls.create(**query)
-        Summary.create(for_habit=habit,
-                       target=0,
-                       target_date=datetime.now(),
-                       streak=0)
+        Summary.create(for_habit=habit, target=0, target_date=datetime.now(), streak=0)
         return habit
 
     @classmethod
     def all_active(cls):
         """Add a habit.
 
-        Returns:
+        Returns
+        -------
             All active habits.
 
         """
@@ -169,15 +176,15 @@ class Habit(BaseModel):
 class Activity(BaseModel):
     """Updates for a Habit.
 
-    Attributes:
+    Attributes
+    ----------
         for_habit (int): Id of the Habit. Foreign key.
         update_date (date): Date time of the update.
         quantum (float): Amount for the habit.
 
     """
 
-    for_habit = ForeignKeyField(Habit, backref="activities",
-                                index=True)
+    for_habit = ForeignKeyField(Habit, backref="activities", index=True)
     quantum = DoubleField()
     update_date = DateTimeField(default=datetime.now())
 
@@ -185,7 +192,8 @@ class Activity(BaseModel):
 class Summary(BaseModel):
     """Continuous metrics for a Habit.
 
-    Attributes:
+    Attributes
+    ----------
         for_habit (int): Id of the Habit. Foreign key.
         target (float): A target for the Habit. Computed from the quantum.
         target_date (date): Date for the target.
@@ -194,8 +202,7 @@ class Summary(BaseModel):
 
     """
 
-    for_habit = ForeignKeyField(Habit, backref="summary",
-                                index=True)
+    for_habit = ForeignKeyField(Habit, backref="summary", index=True)
     target = DoubleField()
     target_date = DateField()
     streak = IntegerField(default=0)
@@ -205,17 +212,23 @@ class Summary(BaseModel):
         """Update streak for a habit.
 
         Args:
+        ----
             habit (Habit): Habit to update.
         """
         # Check-in now supports past updates for upto 365 days
         # TODO need an index on date, this query will scan entire table
         summary = cls.get(for_habit=habit)
-        activities = list((Activity
-                           .select(Activity.update_date,
-                                   fn.SUM(Activity.quantum).alias('total_quantum'))
-                           .where(Activity.for_habit == habit)
-                           .group_by(fn.date(Activity.update_date))
-                           .order_by(Activity.update_date.desc())))
+        activities = list(
+            (
+                Activity.select(
+                    Activity.update_date,
+                    fn.SUM(Activity.quantum).alias("total_quantum"),
+                )
+                .where(Activity.for_habit == habit)
+                .group_by(fn.date(Activity.update_date))
+                .order_by(Activity.update_date.desc())
+            )
+        )
 
         if len(activities) == 0:
             return summary
@@ -245,14 +258,13 @@ class Migration:
     """Migrations for habito database."""
 
     # Error codes for the migrations
-    error_codes = {-1: "not run",
-                   0: "success",
-                   1: "generic failure"}
+    error_codes = {-1: "not run", 0: "success", 1: "generic failure"}
 
     def __init__(self, database):
         """Create an instance of the migration.
 
         Args:
+        ----
             database: database instance
         """
         self._db = database
@@ -265,9 +277,11 @@ class Migration:
         DB version is the actual version otherwise.
 
         Args:
+        ----
             database (Database): peewee database instance
 
         Returns:
+        -------
             Database version (int).
 
         """
@@ -290,8 +304,7 @@ class Migration:
         # Set current version to 0, we will only run migration_0
         act_ver = self.get_version()
         cur_ver = 0 if act_ver == 0 else DB_VERSION
-        logger.debug("DB version: actual = {0}, current = {1}"
-                     .format(act_ver, cur_ver))
+        logger.debug("DB version: actual = {0}, current = {1}".format(act_ver, cur_ver))
 
         if cur_ver != 0 and act_ver == cur_ver:
             logger.debug("DB versions are same. Skip migration.")
@@ -300,7 +313,7 @@ class Migration:
         def get_migration(version):
             return self.__getattribute__("_migration_{}".format(version))
 
-        m = {x: (get_migration(x), -1) for x in range(act_ver, cur_ver+1)}
+        m = {x: (get_migration(x), -1) for x in range(act_ver, cur_ver + 1)}
         if list_only:
             # List the migration and status without running
             return {f[0]: f[1][1] for f in m.items()}
@@ -322,7 +335,8 @@ class Migration:
             with self._db.transaction():
                 migrate(
                     migrator.rename_table("habitmodel", "habit"),
-                    migrator.rename_table("activitymodel", "activity"))
+                    migrator.rename_table("activitymodel", "activity"),
+                )
             logger.debug("Migration #1: Renamed habit, activity tables.")
 
         # Create new tables
@@ -335,9 +349,11 @@ class Migration:
 
         # Update summaries
         for h in Habit.select():
-            activities = Activity.select()\
-                                 .where(Activity.for_habit == h)\
-                                 .order_by(Activity.update_date.asc())
+            activities = (
+                Activity.select()
+                .where(Activity.for_habit == h)
+                .order_by(Activity.update_date.asc())
+            )
             streak = 0
             if len(activities) != 0:
                 last_date = activities[0].update_date
@@ -349,8 +365,7 @@ class Migration:
                     last_date = a.update_date
 
             # Update summary for the habit
-            s = Summary.get_or_create(for_habit=h, target=0,
-                                      target_date=h.created_date)
+            s = Summary.get_or_create(for_habit=h, target=0, target_date=h.created_date)
             s[0].streak = streak
             s[0].save()
         logger.debug("Migration #1: Summary updated for habits.")

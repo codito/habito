@@ -27,17 +27,20 @@ class HabitoTests(HabitoTestCase):
         models.setup(habito.commands.database_name)
 
     def tearDown(self):
-        models.db.drop_tables([models.Habit, models.Activity, models.Summary],
-                              safe=True)
+        models.db.drop_tables(
+            [models.Habit, models.Activity, models.Summary], safe=True
+        )
 
     def test_habito_cli_sets_up_default_commandset(self):
         result = habito.commands.cli
 
-        commands = {'list': habito.commands.list,
-                    'add': habito.commands.add,
-                    'checkin': habito.commands.checkin,
-                    'edit': habito.commands.edit,
-                    'delete': habito.commands.delete}
+        commands = {
+            "list": habito.commands.list,
+            "add": habito.commands.add,
+            "checkin": habito.commands.checkin,
+            "edit": habito.commands.edit,
+            "delete": habito.commands.delete,
+        }
 
         assert result.commands == commands
 

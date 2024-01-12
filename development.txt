@@ -1,11 +1,12 @@
 -r requirements.txt
 coverage
-flake8
-flake8-docstrings
 mkdocs
 mkdocs-material
+pre-commit
 pytest
 pytest-cov
 pytest-mock
+ruff
 twine
+types-peewee
 wheel
