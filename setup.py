@@ -11,9 +11,9 @@ from os import path
 NAME = "habito"
 DESCRIPTION = "Simple command line habits tracker"
 URL = "https://github.com/codito/habito"
-EMAIL = "arun@codito.in"
+EMAIL = "codito@codito.in"
 AUTHOR = "Arun Mahapatra"
-VERSION = (1, 1, 0)
+VERSION = (1, 2, 0)
 
 # Dependencies required for execution
 REQUIRED = ["click", "peewee>=3.0.15", "terminaltables", "dateparser"]
