@@ -3,6 +3,7 @@
 import logging
 import shutil
 from datetime import datetime, timedelta
+from typing import Literal, Union
 
 import click
 
@@ -26,10 +27,27 @@ logger = logging.getLogger("habito")
     default="table",
     help="Output format. Default is table.",
 )
-def list(long_list, format="table"):
+@click.option(
+    "-d",
+    "--duration",
+    type=click.STRING,
+    default="1 week",
+    help=(
+        "Duration for the report. Default is 1 week. "
+        "Use `all` to dump all activities since beginning. "
+        "If format is table, maximum duration is inferred "
+        "from the terminal width."
+    ),
+)
+def list(
+    long_list: bool,
+    format: Union[Literal["csv"], Literal["table"]] = "table",
+    duration="1 week",
+):
     """List all tracked habits."""
-    from terminaltables import SingleTable
     from textwrap import wrap
+
+    from terminaltables import SingleTable
 
     terminal_width, terminal_height = shutil.get_terminal_size()
 
@@ -86,3 +104,7 @@ def list(long_list, format="table"):
         r[0] = "\n".join(wrap(r[0], max_col_width))
 
     click.echo(table.table)
+
+
+# def _get_max_duration(format: str, duration: str) -> int:
+#     return 0

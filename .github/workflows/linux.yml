@@ -28,7 +28,7 @@ jobs:
           pip freeze
       - name: Lint with ruff
         run: |
-          ruff
+          ruff check
       - name: Test with pytest
         run: |
           pytest
