@@ -2,8 +2,9 @@
 """List all habits."""
 import logging
 import shutil
+import os
 from datetime import datetime, timedelta
-from typing import Literal, Union
+from typing import Literal, List, Tuple, Union
 
 import click
 
@@ -34,7 +35,6 @@ logger = logging.getLogger("habito")
     default="1 week",
     help=(
         "Duration for the report. Default is 1 week. "
-        "Use `all` to dump all activities since beginning. "
         "If format is table, maximum duration is inferred "
         "from the terminal width."
     ),
@@ -45,18 +45,47 @@ def list(
     duration="1 week",
 ):
     """List all tracked habits."""
-    from textwrap import wrap
+    nr_of_dates = _get_max_duration(format, duration)
+    if format == "csv":
+        _show_csv(nr_of_dates)
+        return
 
+    _show_table(nr_of_dates, long_list)
+
+
+def _show_csv(nr_of_dates: int):
+    """List habits in csv format grouped by day."""
+    if nr_of_dates < 1:
+        click.echo("Invalid duration. Try `1 week`, `30 days` or `2 months`.")
+        raise SystemExit(1)
+
+    data: List[Tuple[int, float, str]] = []
+    data.append((0, 0, f"id,name,goal,units,date,activity{os.linesep}"))
+    for habit_data in models.get_daily_activities(nr_of_dates):
+        habit = habit_data[0]
+        for activity in habit_data[1]:
+            for_date = datetime.today() - timedelta(days=activity[0])
+            data.append(
+                (
+                    habit.id,
+                    for_date.timestamp(),
+                    (
+                        f"{habit.id},{habit.name},{habit.quantum},{habit.units}"
+                        f",{for_date.date()},{activity[1] or 0.0}"
+                        f"{os.linesep}"
+                    ),
+                )
+            )
+    data.sort(key=lambda t: t[1])
+    click.echo_via_pager(map(lambda d: d[2], data))
+
+
+def _show_table(nr_of_dates: int, long_list: bool):
+    """List habits in tabular format grouped by day."""
+    from textwrap import wrap
     from terminaltables import SingleTable
 
-    terminal_width, terminal_height = shutil.get_terminal_size()
-
-    nr_of_dates = terminal_width // 10 - 4
     if nr_of_dates < 1:
-        logger.debug(
-            "list: Actual terminal width = {0}.".format(shutil.get_terminal_size()[0])
-        )
-        logger.debug("list: Observed terminal width = {0}.".format(terminal_width))
         click.echo(
             "Your terminal window is too small. Please make it wider and try again"
         )
@@ -106,5 +135,24 @@ def list(
     click.echo(table.table)
 
 
-# def _get_max_duration(format: str, duration: str) -> int:
-#     return 0
+def _get_max_duration(format: str, duration: str) -> int:
+    if format != "table":
+        import dateparser
+
+        from_date = dateparser.parse(duration)
+        if from_date is None:
+            logger.debug(f"list: Cannot parse from date. Input duration = {duration}.")
+            return -1
+        days = (datetime.now() - from_date).days
+        return days
+
+    # Calculate duration that fits to the terminal width
+    terminal_width, _ = shutil.get_terminal_size()
+
+    nr_of_dates = terminal_width // 10 - 4
+    if format == "table" and nr_of_dates < 1:
+        logger.debug(
+            "list: Actual terminal width = {0}.".format(shutil.get_terminal_size()[0])
+        )
+        logger.debug("list: Observed terminal width = {0}.".format(terminal_width))
+    return nr_of_dates

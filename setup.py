@@ -16,7 +16,7 @@ AUTHOR = "Arun Mahapatra"
 VERSION = (1, 1, 0)
 
 # Dependencies required for execution
-REQUIRED = ["click", "peewee>=3.0.15", "terminaltables"]
+REQUIRED = ["click", "peewee>=3.0.15", "terminaltables", "dateparser"]
 
 here = path.abspath(path.dirname(__file__))
 
@@ -91,9 +91,9 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Utilities",
     ],
     keywords="habits goals track tracking quantified self",

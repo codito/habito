@@ -9,6 +9,55 @@ from tests.commands import HabitoCommandTestCase
 
 
 class HabitoListCommandTestCase(HabitoCommandTestCase):
+    def test_habito_list_default_format_is_table(self):
+        habit = self.create_habit()
+        self.add_summary(habit)
+
+        result = self._run_command(habito.commands.list, ["-l"])
+
+        assert "id,name," not in result.output
+
+    def test_habito_list_csv_duration(self):
+        habit_one = self.create_habit()
+        self.add_summary(habit_one)
+
+        result = self._run_command(
+            habito.commands.list, ["-l", "-f", "csv", "-d", "13 days"]
+        )
+
+        # 1 habit for 13 days = 15 data points incl header and footer
+        assert 15 == len(result.output.splitlines())
+
+    def test_habito_list_csv_invalid_from_date(self):
+        habit_one = self.create_habit()
+        self.add_summary(habit_one)
+
+        result = self._run_command(
+            habito.commands.list, ["-l", "-f", "csv", "-d", "13 nights"]
+        )
+
+        assert 1 == result.exit_code
+
+    def test_habito_list_csv_headers_and_data(self):
+        habit_one = self.create_habit()
+        habit_two = self.create_habit(name="HabitTwo")
+        self.add_summary(habit_one)
+        self.add_summary(habit_two)
+        three_days_back = (datetime.now() - timedelta(days=3)).date()
+        self._run_command(habito.commands.checkin, ["One", "-q 3.0"])
+        self._run_command(habito.commands.checkin, ["One", "-q 2.0"])
+
+        result = self._run_command(habito.commands.list, ["-l", "-f", "csv"])
+
+        # 2 habits for 7 days = 16 data points incl header and footer
+        assert "id,name,goal,units,date,activity" in result.output
+        assert (
+            f"1,HabitOne,0.0,dummy_units,{datetime.now().date()},5.0" in result.output
+        )
+        assert f"1,HabitOne,0.0,dummy_units,{three_days_back},0.0" in result.output
+        assert f"2,HabitTwo,0.0,dummy_units,{three_days_back},0.0" in result.output
+        assert 16 == len(result.output.splitlines())
+
     def test_habito_list_lists_off_track_habits(self):
         habit = self.create_habit()
         self.add_summary(habit)
