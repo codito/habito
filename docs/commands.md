@@ -6,6 +6,7 @@ tutorial. Now let's dive deeper into the various command supported by habito.
 [habito-quickstart]: index.md#quickstart
 
 ## Add
+
 Add command (`habito add`) informs habito to track a new habit. A habit has
 three aspects:
 
@@ -15,6 +16,7 @@ three aspects:
 - A daily target for the habit. E.g. 3 miles daily
 
 ### Syntax
+
 ```
 Usage: habito add [OPTIONS] [NAME]... QUANTUM
 
@@ -30,6 +32,7 @@ Options:
 - `--units` specifies the measurement unit for the habit
 
 ### Examples
+
 (1) Add a habit
 
 ```sh
@@ -45,6 +48,7 @@ You have commited to 3.0 miles of running every day!
 ```
 
 ## List
+
 List command (`habito list`) shows the activities on the habits tracked by
 habito. Habito keeps an account of several aspects of a habit:
 
@@ -53,21 +57,33 @@ habito. Habito keeps an account of several aspects of a habit:
 - Multiple check-ins for a day are supported, habito aggregates these by day for
   reporting.
 - Habito supports [Don't break the chain][no-break-chain] principle with
-  *Streaks*. A streak represents __continuous set of days__ where you've
+  _Streaks_. A streak represents **continuous set of days** where you've
   exceeded the target set for a habit.
 
 [no-break-chain]: https://lifehacker.com/281626/jerry-seinfelds-productivity-secret
 
 ### Syntax
+
 ```
 Usage: habito list [OPTIONS]
 
   List all tracked habits.
 
 Options:
-  -l      Long listing with date and quantum.
-  --help  Show this message and exit.
+  -l                        Long listing with date and quantum.
+  -f, --format [csv|table]  Output format. Default is table.
+  -d, --duration TEXT       Duration for the report. Default is 1 week. If
+                            format is table, maximum duration is inferred from
+                            the terminal width.
+  --help                    Show this message and exit.
 ```
+
+**CSV format** can be used to print habits and activities aggregated by day in
+a comma separated value format. Default duration is 1 week. You can use a custom
+duration with `-d "1 month"` for instance. Supports human-readable values. See
+[dateparser](https://dateparser.readthedocs.io/en/latest/) docs for spec.
+
+**Tabular format (default)**
 
 Activity reporting follows below convention by default. Use the `-l` switch if
 you'd like a date based view.
@@ -78,6 +94,7 @@ you'd like a date based view.
 - □ implies no activity for the habito on a day
 
 ### Examples
+
 (1) List all tracked habits
 
 ```sh
@@ -100,10 +117,23 @@ you'd like a date based view.
 └───────────────────────┴───────┴────────┴───────┴───────┴──────┴──────┴───────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘
 ```
 
+(3) List habits in csv format
+
+```sh
+> habito list -l -f csv -d "3 days"
+
+id,name,goal,units,date,activity
+1,running,3.0,miles,2023-02-16,0.0
+1,running,3.0,miles,2023-02-17,3.1
+1,running,3.0,miles,2023-02-18,3.0
+```
+
 ## Checkin
+
 `checkin` command is used to update progress on the tracked habits.
 
 ### Syntax
+
 ```
 Usage: habito checkin [OPTIONS] [NAME]...
 
@@ -126,6 +156,7 @@ Options:
 - `--quantum` specifies progress data (float). E.g. 10.0.
 
 ### Examples
+
 (1) Update progress for a single habit
 
 ```sh
@@ -161,9 +192,11 @@ Please update progress of habits for Fri Feb 09 2018:
 ```
 
 ## Edit
+
 Edit command (`habito edit`) allows updating habit metadata: name and quantum (the target goal).
 
 ### Syntax
+
 ```
 Usage: habito edit [OPTIONS] ID
 
@@ -178,22 +211,27 @@ Options:
 - `ID` is the habit id (you can find it in `habito list` output)
 
 ### Examples
+
 (1) Change a habit name
+
 ```sh
 > habito edit 1 -n "run with joe"
 Habit with id 9 has been saved with name: run with joe and quantum: 3.0.
 ```
 
 (2) Change a habit name and quantum
+
 ```sh
 > habito edit 1 -n "run with joe" -q 2.5
 Habit with id 9 has been saved with name: run with joe and quantum: 2.5.
 ```
 
 ## Delete
+
 Delete command (`habito delete`) removes the habit and activities from the data store.
 
 ### Syntax
+
 ```
 Usage: habito delete [OPTIONS] ID
 
@@ -207,7 +245,9 @@ Options:
 - `ID` is the habit id (you can find it in `habito list` output)
 
 ### Examples
+
 (1) Delete a habit (keep the logs)
+
 ```sh
 > habito delete 9 --keeplogs
 Are you sure you want to delete habit 9: run with joe (this cannot be undone!) [y/N]: y
@@ -215,6 +255,7 @@ Habit 9: run with joe has been deleted!
 ```
 
 (2) Delete a habit along with activities
+
 ```sh
 > habito delete 9
 Are you sure you want to delete habit 9: run with joe (this cannot be undone!) [y/N]: y
