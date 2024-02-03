@@ -1,8 +1,5 @@
 # Habito
 
-[![Build status](https://img.shields.io/travis/codito/habito.svg)](https://travis-ci.org/codito/habito)
-[![Build status](https://img.shields.io/appveyor/ci/codito/habito.svg)](https://ci.appveyor.com/project/codito/habito)
-[![Coverage](https://img.shields.io/codecov/c/github/codito/habito.svg)](http://codecov.io/github/codito/habito?branch=master)
 [![Version](https://img.shields.io/pypi/v/habito.svg)](https://pypi.python.org/pypi/habito)
 [![License](https://img.shields.io/github/license/codito/habito.svg)](https://github.com/codito/habito/blob/master/LICENSE.md)
 
@@ -14,37 +11,36 @@ Simple command line habits tracker.
 
 ## Installation
 
-Habito requires `python 3.6+` to be available in the system. You can install
+Habito requires `python 3.10+` to be available in the system. You can install
 `habito` like any other python package.
 
 ```shell
-pip install habito --user
+# Install pipx if needed: `pip install pipx`
+# Ensure ~/.local/bin is available in system PATH
+pipx install habito
 ```
-
-If you prefer, remove the `--user` flag to install the package into systemwide
-location.
 
 Habito is packaged for following operating systems. Please use the OS specific
 package manager to install it.
 
-* Archlinux: [habito AUR package][habito-aur]
+- Archlinux: [habito AUR package][habito-aur]
 
 [habito-aur]: https://aur.archlinux.org/packages/habito/
 
 ### Upgrade to latest version
 
-If you use `pip` based approach, please use following command line to upgrade
+If you use `pipx` based approach, please use following command line to upgrade
 `habito` to latest version.
 
 ```shell
-pip install habito --user --upgrade
+pipx upgrade habito
 ```
 
 Use OS specific instructions to upgrade otherwise. For example, Arch Linux users
-may use any AUR wrapper like `yaourt`.
+may use any AUR wrapper like `yay`.
 
 ```shell
-yaourt -Syu habito
+yay -Syu habito
 ```
 
 ## Quickstart
@@ -55,9 +51,9 @@ Let's get started with a classic `habito` flow.
 
 There are a few details to contemplate upon before you create a habit.
 
-* A one or two word name for the habit. E.g. writing
-* A measurable unit. E.g. words
-* A daily goal. E.g. 750
+- A one or two word name for the habit. E.g. writing
+- A measurable unit. E.g. words
+- A daily goal. E.g. 750
 
 You can add the habit now.
 

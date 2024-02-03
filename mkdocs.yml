@@ -1,6 +1,6 @@
 site_name: Habito
 
-pages:
+nav:
   - Overview: 'index.md'
   - Commands: 'commands.md'
   - License: 'license.md'

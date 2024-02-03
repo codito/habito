@@ -1,6 +1,71 @@
 [build-system]
 requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta:__legacy__"
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "habito"
+version = "1.2.0"
+requires-python = '>=3.10'
+description = 'Simple command line habits tracker'
+authors = [{ name = 'codito', email = 'codito@codito.in' }]
+dependencies = ["click", "peewee>=3.0.15", "terminaltables", "dateparser"]
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Intended Audience :: Developers',
+    'Intended Audience :: End Users/Desktop',
+    'Intended Audience :: Information Technology',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: MacOS',
+    'Topic :: Terminals',
+    'Topic :: Utilities',
+]
+keywords = ["habits", "goals", "track", "tracking", "quantified", "self"]
+readme = { file = "README.md", content-type = "text/markdown" }
+
+[project.optional-dependencies]
+test = [
+    "mkdocs",
+    "mkdocs-material",
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "ruff",
+    "types-peewee",
+    "twine",
+    "build",
+    "wheel",
+]
+
+[project.scripts]
+habito = "habito.commands:cli"
+
+[project.urls]
+Homepage = 'https://github.com/codito/habito'
+Documentation = 'https://apps.codito.in/habito'
+Source = 'https://github.com/codito/habito'
+Changelog = 'https://github.com/codito/habito/blob/master/CHANGELOG.md'
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+"habito" = ["**/*.yml", "**/*.md"]
+
+[tool.setuptools.packages.find]
+where = ["."]                           # ["."] by default
+include = ["habito*"]                   # ["*"] by default
+exclude = ["contrib", "docs", "tests*"] # empty by default
+namespaces = false                      # true by default
 
 [tool.coverage.run]
 omit = ["habito/main.py"]
@@ -15,16 +80,8 @@ addopts = "--cov=habito --cov-report=term-missing --cov-fail-under=100 --quiet"
 exclude = [".venv", "venv"]
 ignore = []
 line-length = 88
-select = [
-    "D",
-    "E",
-    "F",
-    "W",
-]
+select = ["D", "E", "F", "W"]
 
 [tool.ruff.per-file-ignores]
-"tests/*.py" = [
-    "D101",
-    "D102",
-]
-"**/*.py" = ["F405"]
+"tests/*.py" = ["D101", "D102", "D103"]
+"**/*.py" = ["F405", "D203", "D213"]
