@@ -8,7 +8,7 @@ from playhouse import reflection
 from playhouse.sqlite_ext import SqliteExtDatabase
 from playhouse.migrate import SqliteMigrator, migrate
 
-DB_VERSION = 2
+DB_VERSION = 3
 db = SqliteExtDatabase(None, pragmas=(("foreign_keys", "on"),), regexp_function=True)
 logger = logging.getLogger("habito.models")
 
@@ -131,6 +131,7 @@ class Habit(BaseModel):
         quantum (float): Amount for the habit.
         frequency (int): Data input frequency in numbers of days. (Default: 1)
         units (str): Units of the quantum.
+        minimize (bool): Treat quantum as upper bound if True. (Default: False)
         magica (str): Why is this habit interesting?
         active (bool): True if the habit is active
 
@@ -141,6 +142,7 @@ class Habit(BaseModel):
     frequency = IntegerField(default=1)
     quantum = DoubleField()
     units = CharField()
+    minimize = BooleanField(default=False)
     magica = TextField()
     active = BooleanField(default=True)
 
@@ -350,7 +352,7 @@ class Migration:
         logger.debug("Migration #1: DB version updated to 1.")
 
         # Update summaries
-        for h in Habit.select():
+        for h in Habit.select(Habit.id, Habit.created_date):
             activities = (
                 Activity.select()
                 .where(Activity.for_habit == h)
@@ -381,4 +383,32 @@ class Migration:
         # Set DB version
         Config.insert(name="version", value="2").on_conflict("replace").execute()
         logger.debug("Migration #2: DB version updated to 2.")
+        return 0
+
+    def _migration_3(self):
+        """Apply migration #3.
+
+        Add support for minimize habits.
+        """
+        cols = reflection.introspect(self._db).columns
+        if "minimize" not in cols["habit"]:
+            with self._db.transaction():
+                # Not using `migrator.add_column` because of complexity. It
+                # ends up dropping the table and recreating it, which fails for
+                # us since `summary` has FK constraint on `habit`.
+                #
+                # migrate(
+                #     migrator.add_column(
+                #         table="habit",
+                #         column_name="minimize",
+                #         field=BooleanField(default=False),
+                #     )
+                # )
+                self._db.execute_sql(
+                    "ALTER TABLE habit ADD COLUMN minimize INTEGER DEFAULT 0"
+                )
+        logger.debug("Migration #3: Add minimize column to habit table.")
+
+        Config.insert(name="version", value="3").on_conflict("replace").execute()
+        logger.debug("Migration #3: DB version updated to 3.")
         return 0

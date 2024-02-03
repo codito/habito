@@ -102,11 +102,11 @@ class MigrationTests(HabitoTestCase):
         assert version == 1
 
     def test_get_version_returns_version_if_config_exists(self):
-        self._setup_db_exist_config_version()
+        self._setup_db_exist_config_version_latest()
 
         version = self.migration.get_version()
 
-        assert version == 2
+        assert version == 3
 
     # Migration scenario: DB doesn't exist
     def test_execute_list_result_db_doesnot_exist(self):
@@ -131,38 +131,48 @@ class MigrationTests(HabitoTestCase):
 
         result = self.migration.execute(list_only=True)
 
-        assert result == {1: -1, 2: -1}
+        assert result == {1: -1, 2: -1, 3: -1}
 
     def test_execute_run_result_db_exist_without_config(self):
         self._setup_db_exist_no_config()
 
         result = self.migration.execute()
 
-        assert result == {1: 0, 2: 0}
+        assert result == {1: 0, 2: 0, 3: 0}
         self._verify_row_counts_for_version_2()
         self._verify_summary_for_version_2()
 
-    def test_execute_migration_1_to_2_is_idempotent(self):
+    def test_execute_migration_is_idempotent(self):
         self._setup_db_exist_no_config()
         result = self.migration.execute()
         models.Config.update(value="1").where(models.Config.name == "version").execute()
 
         result = self.migration.execute()
 
-        assert result == {1: 0, 2: 0}
+        assert result == {1: 0, 2: 0, 3: 0}
         self._verify_row_counts_for_version_2()
         self._verify_summary_for_version_2()
+        self._verify_version_3()
 
     # Migration scenario: DB is at version 2
+    def test_execute_migration_2_to_3_is_idempotent(self):
+        self._setup_db_exist_config_version_two()
+
+        result = self.migration.execute()
+
+        assert result == {2: 0, 3: 0}
+        self._verify_version_3()
+
+    # Migration scenario: DB is at version 3 (latest)
     def test_execute_list_result_db_exist_with_config(self):
-        self._setup_db_exist_config_version()
+        self._setup_db_exist_config_version_latest()
 
         result = self.migration.execute(list_only=True)
 
         assert result == {}
 
     def test_execute_run_result_db_exist_with_config(self):
-        self._setup_db_exist_config_version()
+        self._setup_db_exist_config_version_latest()
 
         result = self.migration.execute()
 
@@ -183,10 +193,17 @@ class MigrationTests(HabitoTestCase):
         """
         models.db.create_tables([models.Config])
 
-    def _setup_db_exist_config_version(self):
+    def _setup_db_exist_config_version_two(self):
         """DB version 2 setup."""
-        models.db.create_tables([models.Config])
-        models.Config.create(name="version", value="2")
+        with open("tests/sql/02.sql", "r") as f:
+            script = f.read()
+            for s in script.split(";"):
+                models.db.execute_sql(s + ";")
+
+    def _setup_db_exist_config_version_latest(self):
+        """DB version 2 setup."""
+        models.db.create_tables([models.Habit, models.Config])
+        models.Config.create(name="version", value="3")
 
     # Validations for DB states
     def _verify_row_counts_for_version_2(self):
@@ -202,6 +219,10 @@ class MigrationTests(HabitoTestCase):
         s2 = models.Summary.get(models.Summary.id == 2).streak
         assert s1 == 2
         assert s2 == 1
+
+    def _verify_version_3(self):
+        for h in models.Habit.select():
+            assert h.minimize is False
 
 
 class HabitTests(HabitoTestCase):

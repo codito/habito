@@ -6,22 +6,57 @@ import click
 
 from habito import models as models
 
+EXAMPLES = """
+    Examples:
 
-@click.command()
+    \b
+    habito add "Write every day" 700 --units words
+    habito add "Cycle twice a week" 2 --units rounds --interval 7
+    habito add "Wake up before 6am" 6 --units am --minimize
+    habito add "Walk to work" 1 --units times
+"""
+
+
+@click.command(epilog=EXAMPLES)
 @click.argument("name", nargs=-1)
 @click.argument("quantum", type=click.FLOAT)
 @click.option("--units", "-u", default="units", help="Units of data.")
-def add(name, quantum, units):
-    """Add a habit."""
+@click.option(
+    "--interval",
+    "-i",
+    type=click.INT,
+    default=1,
+    help="Check-in interval in days. Default: 1 day.",
+)
+@click.option(
+    "--minimize",
+    is_flag=True,
+    default=False,
+    help=(
+        "Treat QUANTUM as upper bound. "
+        "Any lesser value will be considered successful check-in."
+    ),
+)
+def add(name, quantum, units, interval, minimize):
+    # noqa
+    """Add a habit NAME with QUANTUM goal."""
     habit_name = " ".join(name)
     models.Habit.add(
         name=habit_name,
         created_date=datetime.now(),
         quantum=quantum,
         units=units,
+        frequency=interval,
+        minimize=minimize,
         magica="",
     )
 
-    msg_unit = click.style("{0} {1}".format(quantum, units), fg="green")
-    msg_name = click.style("{0}".format(habit_name), fg="green")
-    click.echo("You have commited to {0} of {1} every day!".format(msg_unit, msg_name))
+    msg_neg = "<" if minimize else ""
+    msg_unit = click.style(f"{msg_neg}{quantum} {units}", fg="green")
+    msg_name = click.style(f"{habit_name}", fg="green")
+    msg_interval = click.style(f"{interval} days", fg="green")
+    click.echo(
+        "You have commited to {0} of {1} every {2}!".format(
+            msg_unit, msg_name, msg_interval
+        )
+    )
