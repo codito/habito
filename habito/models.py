@@ -214,6 +214,7 @@ class Summary(BaseModel):
         Args:
         ----
             habit (Habit): Habit to update.
+
         """
         # Check-in now supports past updates for upto 365 days
         # TODO need an index on date, this query will scan entire table
@@ -266,6 +267,7 @@ class Migration:
         Args:
         ----
             database: database instance
+
         """
         self._db = database
 
