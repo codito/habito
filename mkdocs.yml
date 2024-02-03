@@ -1,5 +1,8 @@
 site_name: Habito
 
+repo_name: codito/habito
+repo_url: https://github.com/codito/habito
+
 nav:
   - Overview: 'index.md'
   - Commands: 'commands.md'

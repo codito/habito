@@ -1,9 +1,9 @@
 # Habito
 
+Simple command line habits tracker.
+
 [![Version](https://img.shields.io/pypi/v/habito.svg)](https://pypi.python.org/pypi/habito)
 [![License](https://img.shields.io/github/license/codito/habito.svg)](https://github.com/codito/habito/blob/master/LICENSE.md)
-
-Simple command line habits tracker.
 
 <script src="https://asciinema.org/a/sczj9UFocJ6VbWLGWBguc1XCI.js" id="asciicast-sczj9UFocJ6VbWLGWBguc1XCI" async></script>
 

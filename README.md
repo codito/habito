@@ -1,6 +1,6 @@
 # Habito
 
-Simple commandline habits tracker.
+Simple command line habits tracker.
 
 [![Linux Build
 Status](https://github.com/codito/habito/workflows/linux/badge.svg)](https://github.com/codito/habito/actions?query=workflow%3Alinux)
