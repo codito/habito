@@ -407,7 +407,11 @@ class Migration:
                 self._db.execute_sql(
                     "ALTER TABLE habit ADD COLUMN minimize INTEGER DEFAULT 0"
                 )
-        logger.debug("Migration #3: Add minimize column to habit table.")
+            logger.debug("Migration #3: Add minimize column to habit table.")
+        else:
+            logger.debug(
+                "Migration #3: Minimize column already available in habit table."
+            )
 
         Config.insert(name="version", value="3").on_conflict("replace").execute()
         logger.debug("Migration #3: DB version updated to 3.")
