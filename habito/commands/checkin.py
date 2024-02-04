@@ -29,43 +29,14 @@ def checkin(name, review, date, quantum):
     update_date = d if d < datetime.now() else d.replace(year=d.year - 1)
     update_date_str = update_date.strftime("%a %b %d %Y")
 
-    def print_header(date_str):
-        header = "Please update progress of habits for {0}:"
-        click.echo(header.format(click.style(date_str, fg="green")))
-
-    def get_quantum(habit, required=True):
-        msg = "  - {0} (Goal: {1} {2})"
-
-        # Keep prompting until we have a value if required is True
-        value = None if required else float_info.max
-        q = click.prompt(
-            msg.format(habit.name, habit.quantum, habit.units),
-            type=float,
-            show_default=False,
-            default=value,
-        )
-        if not required and q == value:
-            return None
-        return q
-
-    def update_activity(habit, quantum, date):
-        # Create an activity for this checkin
-        activity = models.Activity.create(
-            for_habit=habit, quantum=quantum, update_date=update_date
-        )
-
-        # Update streak for the habit
-        models.Summary.update_streak(habit)
-        return activity
-
     # Review mode: iterate through all habits
     if review:
-        print_header(update_date_str)
+        _print_header(update_date_str)
         click.echo("(Press `enter` if you'd like to skip update for a habit.)")
         for h in models.Habit.all_active():
-            q = get_quantum(h, required=False)
+            q = _get_quantum(h, required=False)
             if q is not None:
-                update_activity(h, q, update_date)
+                _update_activity(h, q, update_date)
         return
 
     # Non review mode: checkin a single habit
@@ -92,11 +63,43 @@ def checkin(name, review, date, quantum):
     # Now add the activity for the chosen habit
     habit = habits[0]
     if quantum is None:
-        print_header(update_date_str)
-        quantum = get_quantum(habit, required=True)
-    activity = update_activity(habit, quantum, update_date)
+        _print_header(update_date_str)
+        quantum = _get_quantum(habit, required=True)
+    activity = _update_activity(habit, quantum, update_date)
 
     act_msg = click.style("{0} {1}".format(activity.quantum, habit.units), fg="green")
     act_date = click.style(update_date_str, fg="green")
     habit_msg = click.style("{0}".format(habit.name), fg="green")
     click.echo("Added {0} to habit {1} for {2}.".format(act_msg, habit_msg, act_date))
+
+
+def _print_header(date_str):
+    header = "Please update progress of habits for {0}:"
+    click.echo(header.format(click.style(date_str, fg="green")))
+
+
+def _get_quantum(habit, required=True):
+    msg = "  - {0} (Goal: {1} {2})"
+
+    # Keep prompting until we have a value if required is True
+    value = None if required else float_info.max
+    q = click.prompt(
+        msg.format(habit.name, habit.quantum, habit.units),
+        type=float,
+        show_default=False,
+        default=value,
+    )
+    if not required and q == value:
+        return None
+    return q
+
+
+def _update_activity(habit, quantum, update_date):
+    # Create an activity for this checkin
+    activity = models.Activity.create(
+        for_habit=habit, quantum=quantum, update_date=update_date
+    )
+
+    # Update streak for the habit
+    models.Summary.update_streak(habit)
+    return activity

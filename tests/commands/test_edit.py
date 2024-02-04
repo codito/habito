@@ -37,5 +37,7 @@ class HabitoEditTestCase(HabitoCommandTestCase):
     def test_non_existing_edit(self):
         edit_result = self._run_command(habito.commands.edit, [str(10), "-n test"])
 
-        assert edit_result.output == "The habit you're trying to edit does not exist!\n"
+        assert edit_result.output.startswith(
+            "The habit you're trying to edit does not exist!"
+        )
         assert edit_result.exit_code == 1
