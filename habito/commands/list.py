@@ -151,8 +151,6 @@ def _get_max_duration(format: str, duration: str) -> int:
 
     nr_of_dates = terminal_width // 10 - 4
     if format == "table" and nr_of_dates < 1:
-        logger.debug(
-            "list: Actual terminal width = {0}.".format(shutil.get_terminal_size()[0])
-        )
-        logger.debug("list: Observed terminal width = {0}.".format(terminal_width))
+        logger.debug(f"list: Actual terminal width = {shutil.get_terminal_size()[0]}.")
+        logger.debug(f"list: Observed terminal width = {terminal_width}.")
     return nr_of_dates

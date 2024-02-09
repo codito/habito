@@ -2,7 +2,7 @@
 """Tests for habito models."""
 
 import pytest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import habito.models as models
 from tests import HabitoTestCase
@@ -223,6 +223,7 @@ class MigrationTests(HabitoTestCase):
     def _verify_version_3(self):
         for h in models.Habit.select():
             assert h.minimize is False
+            assert h.start_date is None
 
 
 class HabitTests(HabitoTestCase):
@@ -319,6 +320,21 @@ class SummaryTests(HabitoTestCase):
 
         assert summary.streak == 3
 
+    def test_update_streak_counts_streak_for_two_day_frequency(self):
+        habit = self.create_habit(
+            start_date=(datetime.now().date() - timedelta(days=5)),
+            quantum=6,
+            minimize=True,
+            frequency=2,
+        )
+        self.add_summary(habit, streak=10)
+        self.add_activity(habit, quantum=6, update_date=SummaryTests.three_days_ago)
+        self.add_activity(habit, quantum=5, update_date=SummaryTests.one_day_ago)
+
+        summary = models.Summary.update_streak(habit)
+
+        assert summary.streak == 2
+
     def test_update_streak_sets_streak_as_one_for_irregular_activity(self):
         habit = self.create_habit()
         self.add_summary(habit, streak=10)
@@ -329,26 +345,11 @@ class SummaryTests(HabitoTestCase):
 
         assert summary.streak == 1
 
-    def test_get_streak_should_add_days_for_zero_streak(self):
-        habit = self.create_habit()
-        self.add_summary(habit, streak=0)
-
-        streak = habit.summary.get().get_streak()
-
-        assert streak == "0 days"
-
     def test_get_streak_should_add_days_for_plural_streak(self):
-        habit = self.create_habit()
-        self.add_summary(habit, streak=20)
+        for streak, expected in [(20, "20 days"), (1, "1 day"), (0, "0 days")]:
+            habit = self.create_habit()
+            self.add_summary(habit, streak=streak)
 
-        streak = habit.summary.get().get_streak()
+            streak = habit.summary.get().get_streak()
 
-        assert streak == "20 days"
-
-    def test_get_streak_should_add_days_for_one_streak(self):
-        habit = self.create_habit()
-        self.add_summary(habit, streak=1)
-
-        streak = habit.summary.get().get_streak()
-
-        assert streak == "1 day"
+            assert streak == expected

@@ -3,6 +3,8 @@
 from datetime import datetime
 
 import click
+import dateparser
+import sys
 
 from habito import models as models
 
@@ -37,13 +39,24 @@ EXAMPLES = """
         "Any lesser value will be considered successful check-in."
     ),
 )
-def add(name, quantum, units, interval, minimize):
-    # noqa
+@click.option(
+    "--start-date",
+    type=click.STRING,
+    default="today",
+    help="Start date for tracking the habit. Default: today.",
+)
+def add(name, quantum, units, interval, minimize, start_date):
     """Add a habit NAME with QUANTUM goal."""
     habit_name = " ".join(name)
+    track_date = dateparser.parse(start_date)
+    if track_date is None:
+        click.echo(f"Unable to parse start date: {start_date}.")
+        sys.exit(1)
+
     models.Habit.add(
         name=habit_name,
         created_date=datetime.now(),
+        start_date=track_date,
         quantum=quantum,
         units=units,
         frequency=interval,
@@ -55,8 +68,4 @@ def add(name, quantum, units, interval, minimize):
     msg_unit = click.style(f"{msg_neg}{quantum} {units}", fg="green")
     msg_name = click.style(f"{habit_name}", fg="green")
     msg_interval = click.style(f"{interval} days", fg="green")
-    click.echo(
-        "You have commited to {0} of {1} every {2}!".format(
-            msg_unit, msg_name, msg_interval
-        )
-    )
+    click.echo(f"You have commited to {msg_unit} of {msg_name} every {msg_interval}!")

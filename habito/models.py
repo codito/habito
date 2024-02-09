@@ -127,7 +127,9 @@ class Habit(BaseModel):
     Attributes
     ----------
         name (str): Description of the habit.
-        created_date (datetime): Date on which the habit was added.
+        created_date (date): Date on which the habit was added.
+        start_date (date): Date from which the habit is tracked. If null,
+        use created_date.
         quantum (float): Amount for the habit.
         frequency (int): Data input frequency in numbers of days. (Default: 1)
         units (str): Units of the quantum.
@@ -138,7 +140,8 @@ class Habit(BaseModel):
     """
 
     name = CharField()
-    created_date = DateField(default=datetime.now())
+    created_date = DateField(default=datetime.now().date())
+    start_date = DateField(null=True, default=datetime.now().date())
     frequency = IntegerField(default=1)
     quantum = DoubleField()
     units = CharField()
@@ -236,14 +239,40 @@ class Summary(BaseModel):
         if len(activities) == 0:
             return summary
 
-        last_update = activities[0].update_date
-        streak = 1
-        for activity in activities[1:]:
-            diff = last_update - activity.update_date
-            if diff.days > 1 or activity.total_quantum < habit.quantum:
+        # Based on habit tracking interval, divide the days from start_date
+        # till now into slots.
+        start_date = habit.start_date or habit.created_date
+        last_update = activities[0].update_date.date()
+        slot_start_date = last_update - timedelta(
+            days=(last_update - start_date).days % habit.frequency
+        )
+        streak = 0
+        quantum = 0.0
+        for i in range(0, len(activities)):
+            # Break if the activity is outside current slot
+            if activities[i].update_date.date() < slot_start_date:
                 break
-            last_update = activity.update_date
+
+            # Process current slot
+            # 1. Find the total activity in current slot
+            while (
+                i < len(activities)
+                and activities[i].update_date.date() >= slot_start_date
+            ):
+                quantum += activities[i].total_quantum
+                i += 1
+
+            # 2. Add to streak if goal is met
+            goal_not_met = (
+                quantum > habit.quantum if habit.minimize else quantum < habit.quantum
+            )
+            if goal_not_met:
+                break
             streak += 1
+
+            # Reset the slot and quantum
+            slot_start_date = slot_start_date - timedelta(days=habit.frequency)
+            quantum = 0.0
 
         summary.streak = streak
         summary.save()
@@ -251,10 +280,8 @@ class Summary(BaseModel):
 
     def get_streak(self):
         """Humanize a streak to include days."""
-        streak = str(self.streak) + " day"
-        if self.streak != 1:
-            streak += "s"
-        return streak
+        days = "day" if self.streak == 1 else "days"
+        return f"{self.streak} {days}"
 
 
 class Migration:
@@ -391,27 +418,27 @@ class Migration:
         Add support for minimize habits.
         """
         cols = reflection.introspect(self._db).columns
+        sql = []
         if "minimize" not in cols["habit"]:
-            with self._db.transaction():
-                # Not using `migrator.add_column` because of complexity. It
-                # ends up dropping the table and recreating it, which fails for
-                # us since `summary` has FK constraint on `habit`.
-                #
-                # migrate(
-                #     migrator.add_column(
-                #         table="habit",
-                #         column_name="minimize",
-                #         field=BooleanField(default=False),
-                #     )
-                # )
-                self._db.execute_sql(
-                    "ALTER TABLE habit ADD COLUMN minimize INTEGER DEFAULT 0"
-                )
-            logger.debug("Migration #3: Add minimize column to habit table.")
-        else:
-            logger.debug(
-                "Migration #3: Minimize column already available in habit table."
-            )
+            sql.append("ALTER TABLE habit ADD COLUMN minimize INTEGER DEFAULT 0")
+        if "start_date" not in cols["habit"]:
+            sql.append("ALTER TABLE habit ADD COLUMN start_date DATE")
+
+        with self._db.transaction():
+            # Not using `migrator.add_column` because of complexity. It
+            # ends up dropping the table and recreating it, which fails for
+            # us since `summary` has FK constraint on `habit`.
+            #
+            # migrate(
+            #     migrator.add_column(
+            #         table="habit",
+            #         column_name="minimize",
+            #         field=BooleanField(default=False),
+            #     )
+            # )
+            for stmt in sql:
+                self._db.execute_sql(stmt)
+                logger.debug(f"Migration #3: Executed '{stmt}'")
 
         Config.insert(name="version", value="3").on_conflict("replace").execute()
         logger.debug("Migration #3: DB version updated to 3.")

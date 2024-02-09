@@ -79,7 +79,10 @@ def _print_header(date_str):
 
 
 def _get_quantum(habit, required=True):
-    msg = "  - {0} (Goal: {1} {2})"
+    # TODO: add last activity date
+    minimize = "<" if habit.minimize else ""
+    freq = f"{habit.frequency} days" if habit.frequency > 1 else "day"
+    msg = f"  - {habit.name} (Goal: {minimize}{habit.quantum} {habit.units}/{freq})"
 
     # Keep prompting until we have a value if required is True
     value = None if required else float_info.max

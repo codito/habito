@@ -125,6 +125,19 @@ class HabitoCheckinCommandTestCase(HabitoCommandTestCase):
         assert result.exit_code == 0
         assert result.output.find(result_units_one) != -1
 
+    def test_habito_checkin_asks_user_input_minimize_habit(self):
+        habit = self.create_habit(minimize=True, frequency=3)
+        self.add_summary(habit)
+        result_units_one = "9.1 dummy_units"
+
+        # Pass \n to stdin to ensure prompt continues to appear until
+        # a value is provided
+        result = self._run_command_with_stdin(checkin, ["Habit"], "\n9.1")
+
+        assert result.exit_code == 0
+        assert result.output.find(result_units_one) != -1
+        assert result.output.find("Goal: <0.0 dummy_units/3 days") != -1
+
     def test_habito_checkin_increments_streak_for_a_habit(self):
         habit = self.create_habit()
         self.add_activity(habit, update_date=self.one_day_ago)

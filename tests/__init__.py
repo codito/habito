@@ -12,21 +12,29 @@ class HabitoTestCase(TestCase):
 
     one_day_ago = datetime.today() - timedelta(days=1)
     two_days_ago = datetime.today() - timedelta(days=2)
+    three_days_ago = datetime.today() - timedelta(days=3)
+    four_days_ago = datetime.today() - timedelta(days=4)
 
     def create_habit(
         self,
         name="HabitOne",
-        created_date=datetime.now(),
+        created_date=datetime.now().date(),
+        start_date=datetime.now().date(),
         active=True,
         quantum=0,
+        frequency=1,
+        minimize=False,
         magica="be awesome!",
     ):
         habit = models.Habit.create(
             name=name,
             created_date=created_date,
+            start_date=start_date,
             quantum=quantum,
             active=active,
             units="dummy_units",
+            frequency=frequency,
+            minimize=minimize,
             magica=magica,
         )
         return habit
